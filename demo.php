@@ -263,17 +263,32 @@ function demo_teacher_limits(int $courseid): void {
 }
 
 /**
- * Welcome banner in section 0 of the demo course with 4-step guided tour and language toggle.
+ * Welcome banner in section 0 of the demo course with 4-step guided tour, guide button, and language toggle.
  */
 function demo_section_banner(int $courseid, int $other_courseid, string $lang): void {
     global $CFG, $DB;
     $other_url = "{$CFG->wwwroot}/course/view.php?id={$other_courseid}";
 
+    // Locate the Guide page in this course
+    $guide_btn = '';
+    $guide_page = $DB->get_record_select('page', "course = ? AND (name LIKE ? OR name LIKE ?)", [$courseid, '%Guide%', '%Vodič%']);
+    if ($guide_page) {
+        $guide_cm = get_coursemodule_from_instance('page', $guide_page->id, $courseid);
+        if ($guide_cm) {
+            $guide_url = "{$CFG->wwwroot}/mod/page/view.php?id={$guide_cm->id}";
+            $btn_text = ($lang === 'en') ? '📖 Admin &amp; Teacher Guide: CodeLab Runner →' : '📖 Vodič za admine i nastavnike: CodeLab Runner →';
+            $guide_btn = '<a href="' . $guide_url . '" class="btn btn-sm btn-warning text-dark rounded-pill px-3 fw-bold shadow-sm" style="backdrop-filter: blur(4px);">' . $btn_text . '</a>';
+        }
+    }
+
     if ($lang === 'en') {
         $banner = '<div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden" style="background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 60%, #2563eb 100%); color: #ffffff;">'
             . '<div class="card-body p-4">'
             . '<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">'
+            . '<div class="d-flex flex-wrap align-items-center gap-2">'
             . '<span class="badge bg-white bg-opacity-25 text-white px-3 py-2 rounded-pill fw-normal" style="backdrop-filter: blur(4px);">✨ CodeLab Demo · English</span>'
+            . $guide_btn
+            . '</div>'
             . '<a href="' . $other_url . '" class="btn btn-sm btn-outline-light rounded-pill px-3 fw-bold" style="backdrop-filter: blur(4px);">🇷🇸 Prebaci na srpski kurs →</a>'
             . '</div>'
             . '<h2 class="fw-bold text-white mb-2">Welcome to CodeLab for Moodle!</h2>'
@@ -292,7 +307,10 @@ function demo_section_banner(int $courseid, int $other_courseid, string $lang): 
         $banner = '<div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden" style="background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 60%, #2563eb 100%); color: #ffffff;">'
             . '<div class="card-body p-4">'
             . '<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">'
+            . '<div class="d-flex flex-wrap align-items-center gap-2">'
             . '<span class="badge bg-white bg-opacity-25 text-white px-3 py-2 rounded-pill fw-normal" style="backdrop-filter: blur(4px);">✨ CodeLab Demo · Srpski</span>'
+            . $guide_btn
+            . '</div>'
             . '<a href="' . $other_url . '" class="btn btn-sm btn-outline-light rounded-pill px-3 fw-bold" style="backdrop-filter: blur(4px);">🌐 Switch to English Course →</a>'
             . '</div>'
             . '<h2 class="fw-bold text-white mb-2">Dobrodošli u CodeLab za Moodle!</h2>'
@@ -369,6 +387,24 @@ function demo_frontpage(int $en_id, int $sr_id): void {
     $en_url = "{$CFG->wwwroot}/course/view.php?id={$en_id}";
     $sr_url = "{$CFG->wwwroot}/course/view.php?id={$sr_id}";
 
+    // Locate guides
+    $en_guide_url = "{$CFG->wwwroot}/course/view.php?id={$en_id}";
+    $sr_guide_url = "{$CFG->wwwroot}/course/view.php?id={$sr_id}";
+    $g_en = $DB->get_record_select('page', "course = ? AND name LIKE ?", [$en_id, '%Guide%']);
+    if ($g_en) {
+        $cm = get_coursemodule_from_instance('page', $g_en->id, $en_id);
+        if ($cm) {
+            $en_guide_url = "{$CFG->wwwroot}/mod/page/view.php?id={$cm->id}";
+        }
+    }
+    $g_sr = $DB->get_record_select('page', "course = ? AND name LIKE ?", [$sr_id, '%Vodič%']);
+    if ($g_sr) {
+        $cm = get_coursemodule_from_instance('page', $g_sr->id, $sr_id);
+        if ($cm) {
+            $sr_guide_url = "{$CFG->wwwroot}/mod/page/view.php?id={$cm->id}";
+        }
+    }
+
     $summary = '<p>This is the demo site of the <strong>CodeLab plugins for Moodle</strong>: '
         . '<a href="https://github.com/blagojevicboban/moodle-tiny_codelab">CodeLab for TinyMCE</a> (code examples in the editor), '
         . '<a href="https://github.com/blagojevicboban/moodle-filter_codelab">CodeLab filter</a> (run and step for readers) and '
@@ -376,7 +412,7 @@ function demo_frontpage(int $en_id, int $sr_id): void {
         . '<p>Open the demo courses as a guest (Python runs), or log in with one of these accounts (password <strong>' . DEMO_PASSWORD . '</strong>):</p><ul>'
         . '<li><strong>teacher</strong>: edit the pages and the quiz questions, insert code examples</li>'
         . '<li><strong>student</strong>: run every language, step through C and Python, take the quizzes</li></ul>'
-        . '<p>Courses available: <a href="' . $en_url . '"><strong>CodeLab: demo (English)</strong></a> · <a href="' . $sr_url . '"><strong>CodeLab: demo (srpski)</strong></a></p>'
+        . '<p>Courses available: <a href="' . $en_url . '"><strong>CodeLab: demo (English)</strong></a> · <a href="' . $sr_url . '"><strong>CodeLab: demo (srpski)</strong></a> · <a href="' . $en_guide_url . '"><strong>📖 Administrator &amp; Teacher Guide</strong></a></p>'
         . '<p>Everything you change is reset every night. Serbian (Latin and Cyrillic) is also in the language menu.</p>';
     $DB->update_record('course', (object) [
         'id' => SITEID,
@@ -407,12 +443,14 @@ function demo_frontpage(int $en_id, int $sr_id): void {
         . '<span class="badge bg-white bg-opacity-25 text-white px-3 py-2 rounded-pill fw-normal" style="backdrop-filter: blur(4px);">✨ Official Demo for CodeLab Plugins</span>'
         . '<span class="badge bg-info bg-opacity-25 text-white px-3 py-2 rounded-pill fw-normal">⚡ 8 Languages + SQL</span>'
         . '<span class="badge bg-warning bg-opacity-25 text-white px-3 py-2 rounded-pill fw-normal">🐞 Line-by-Line Debugger</span>'
+        . '<a href="' . $en_guide_url . '" class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold text-decoration-none shadow-sm">📖 Admin &amp; Runner Guide →</a>'
         . '</div>'
         . '<h1 class="display-6 fw-bold text-white mb-3">Runnable Code in Moodle with the VS Code Editor</h1>'
         . '<p class="lead mb-4" style="color: rgba(255,255,255,0.92) !important; font-size: 1.15rem;">Write examples in C, C++, Python, Java, C#, JavaScript, Pascal, PHP and SQL. Students can edit and run with live stdin, step through line-by-line with a debugger, and be graded automatically in quizzes.</p>'
         . '<div class="d-flex flex-wrap gap-3 mb-2">'
         . '<a href="' . $en_url . '" class="btn btn-light btn-lg px-4 fw-bold shadow-sm" style="border-radius: 12px; color: #1e3a8a;">🇬🇧 Open English Demo</a>'
         . '<a href="' . $sr_url . '" class="btn btn-outline-light btn-lg px-4 fw-bold shadow-sm" style="border-radius: 12px; border-width: 2px;">🇷🇸 Otvori kurs na srpskom</a>'
+        . '<a href="' . $en_guide_url . '" class="btn btn-warning text-dark btn-lg px-4 fw-bold shadow-sm" style="border-radius: 12px;">📖 Admin &amp; Teacher Guide</a>'
         . '</div>'
         . '</div>'
         . '<div class="col-lg-5 mt-4 mt-lg-0">'
