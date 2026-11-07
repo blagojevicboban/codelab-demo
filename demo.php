@@ -70,10 +70,13 @@ if (is_readable($sr_mbz)) {
 
 // Cross-link banners and front page
 if ($sr_id !== null) {
+    demo_ensure_admin_guide($en_id, 'en');
+    demo_ensure_admin_guide($sr_id, 'sr');
     demo_section_banner($en_id, $sr_id, 'en');
     demo_section_banner($sr_id, $en_id, 'sr');
     demo_frontpage($en_id, $sr_id);
 } else {
+    demo_ensure_admin_guide($en_id, 'en');
     demo_section_banner_single($en_id);
     demo_frontpage_single($en_id);
 }
@@ -115,9 +118,35 @@ function demo_settings(): void {
     set_config('runnerurl', 'wss://runner.tsp.edu.rs', 'tiny_codelab');
     set_config('browserpython', 1, 'tiny_codelab');
 
-    // Modern Boost theme custom CSS
+    // Demo login instructions on login/index.php
+    $auth_instructions = <<<'HTML'
+<div class="card border-0 shadow-lg rounded-4 p-4 text-start text-white" style="background: rgba(15, 23, 42, 0.92) !important; backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.18) !important; max-width: 440px; margin: 0 auto;">
+    <div class="d-flex align-items-center gap-2 mb-3">
+        <span class="fs-4">⚡</span>
+        <h5 class="fw-bold mb-0 text-white">Instant Demo Access</h5>
+    </div>
+    <div class="p-3 rounded-3 mb-2" style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.12);">
+        <div class="fw-bold mb-1" style="color: #38bdf8;">🧑‍🏫 Teacher: <code>teacher</code></div>
+        <div class="small" style="color: rgba(255, 255, 255, 0.9); line-height: 1.4;">Insert &amp; edit runnable Monaco code in TinyMCE (9 languages), configure test cases and auto-grading.</div>
+    </div>
+    <div class="p-3 rounded-3 mb-3" style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.12);">
+        <div class="fw-bold mb-1" style="color: #fbbf24;">🎓 Student: <code>student</code></div>
+        <div class="small" style="color: rgba(255, 255, 255, 0.9); line-height: 1.4;">Run 8 languages + SQL with live stdin, step through C &amp; Python with debugger, solve coding quizzes.</div>
+    </div>
+    <div class="d-flex align-items-center justify-content-between pt-2 border-top border-white border-opacity-25 small mb-2">
+        <span style="color: rgba(255, 255, 255, 0.9);">Password:</span>
+        <code style="background: #000000; color: #fde047; padding: 4px 10px; border-radius: 6px; font-weight: bold; font-size: 0.95rem; border: 1px solid rgba(253, 224, 71, 0.4);">Demo-2026</code>
+    </div>
+    <div class="text-center small mt-2" style="color: rgba(255, 255, 255, 0.75);">
+        Or click the <strong>Log in as guest</strong> button below!
+    </div>
+</div>
+HTML;
+    set_config('auth_instructions', $auth_instructions);
+
+    // Modern Boost and Moove theme custom CSS
     $customcss = <<<'CSS'
-/* Modern Boost Theme Enhancements for CodeLab Demo */
+/* Modern Boost & Moove Theme Enhancements for CodeLab Demo */
 :root {
     --bs-primary: #2563eb;
     --bs-primary-rgb: 37, 99, 235;
@@ -157,8 +186,22 @@ pre, code, kbd, samp {
 #page-footer a {
     color: #38bdf8;
 }
+
+/* Center login instructions card in Moove theme */
+body.pagelayout-login .login-layout-left-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+}
+body.pagelayout-login .login-layout-left-content .card {
+    max-width: 460px;
+    width: 100%;
+}
 CSS;
     set_config('customcss', $customcss, 'theme_boost');
+    set_config('scss', $customcss, 'theme_moove');
+    set_config('theme', 'moove');
 
     // The shared demo accounts cannot change their password, profile or private files.
     $userrole = get_archetype_roles('user');
@@ -168,6 +211,157 @@ CSS;
         assign_capability($cap, CAP_PROHIBIT, $userrole->id, $system->id, true);
     }
     echo "settings and custom CSS done\n";
+}
+
+/**
+ * Ensures a comprehensive CodeLab Runner & Admin Guide page exists in the course.
+ */
+function demo_ensure_admin_guide(int $courseid, string $lang): void {
+    global $DB, $CFG;
+
+    $title = ($lang === 'en')
+        ? 'CodeLab Runner & Admin Guide: Interactive Execution'
+        : 'Vodič za admine i nastavnike: CodeLab Runner';
+
+    $content = ($lang === 'en')
+        ? demo_guide_html_en()
+        : demo_guide_html_sr();
+
+    $page = $DB->get_record_select('page', "course = ? AND (name LIKE ? OR name LIKE ?)", [$courseid, '%Guide%', '%Vodič%']);
+    if ($page) {
+        $page->name = $title;
+        $page->content = $content;
+        $page->timemodified = time();
+        $DB->update_record('page', $page);
+        echo "Updated Admin Guide page in course {$courseid} ({$lang})\n";
+    }
+}
+
+/**
+ * Detailed HTML guide for CodeLab Runner in English.
+ */
+function demo_guide_html_en(): string {
+    return <<<'HTML'
+<div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+    <div class="d-flex align-items-center mb-3">
+        <span class="fs-2 me-3">🚀</span>
+        <div>
+            <h3 class="fw-bold mb-0 text-primary">CodeLab Runner &amp; Admin Architecture Guide</h3>
+            <p class="text-muted mb-0">Interactive multi-language code execution, sandbox isolation, and Moodle integration</p>
+        </div>
+    </div>
+    <hr>
+    
+    <h4 class="fw-bold mt-3 mb-2">1. System Overview</h4>
+    <p>CodeLab for Moodle provides students with runnable code in <strong>C, C++, Python, Java, C#, JavaScript, Pascal, PHP and SQL</strong> directly inside lesson pages, forum posts, and quiz questions.</p>
+    <ul>
+        <li><strong>Python &amp; JavaScript:</strong> Execute instantly in the browser client-side using WebAssembly (Pyodide). Zero server load and instant response.</li>
+        <li><strong>Compiled Languages (C, C++, Java, C#) &amp; SQL:</strong> Run interactively on the <strong>CodeLab Runner</strong> server over secure WebSockets (<code>wss://runner.tsp.edu.rs</code>) with live terminal stdin and step-by-step GDB debugging.</li>
+        <li><strong>Automated Quiz Grading:</strong> Uses the backend <strong>Jobe server</strong> (<code>https://jobe.tsp.edu.rs</code>) or the Runner's <code>POST /run</code> HMAC API to verify programs against test suites.</li>
+    </ul>
+
+    <h4 class="fw-bold mt-4 mb-2">2. Architecture &amp; Security Isolation</h4>
+    <div class="p-3 bg-light rounded-3 mb-3 border">
+        <ol class="mb-0">
+            <li><strong>HMAC Authentication:</strong> When a student clicks <em>Run</em>, Moodle generates a one-time token signed with <code>CODELAB_SECRET</code> (valid for 60 seconds).</li>
+            <li><strong>WebSocket Streaming:</strong> The browser opens <code>wss://&lt;runner&gt;/session?token=...</code> to stream source code and standard input/output interactively.</li>
+            <li><strong>Bubblewrap Sandbox (<code>bwrap</code>):</strong> The program executes inside an unprivileged Linux namespace:
+                <ul>
+                    <li>No network access (<code>--unshare-net</code>).</li>
+                    <li>Read-only filesystem mount.</li>
+                    <li>Resource limits enforced via <code>prlimit</code> (maximum CPU time, 128 MB RAM, file size cap).</li>
+                </ul>
+            </li>
+            <li><strong>SQL Sandbox (MariaDB):</strong> Each SQL run provisions an ephemeral database and user (<code>cl_...</code>) with strict timeout limits (<code>MAX_STATEMENT_TIME=5s</code>) and cleans up immediately upon session completion.</li>
+        </ol>
+    </div>
+
+    <h4 class="fw-bold mt-4 mb-2">3. Server Setup for Administrators</h4>
+    <p>The runner is a lightweight Node.js service designed to run on Ubuntu 22.04/24.04 LTS:</p>
+    <pre class="bg-dark text-light p-3 rounded-3" style="font-size: 13px;"><code># 1. Install prerequisites
+sudo apt-get install bubblewrap build-essential openjdk-21-jdk-headless mono-mcs gdb mariadb-server
+
+# 2. Configure systemd service &amp; environment
+sudo cp deploy/codelab-runner.service /etc/systemd/system/
+sudo cp deploy/codelab-runner.env.example /etc/codelab-runner.env
+# Edit /etc/codelab-runner.env: set CODELAB_SECRET, CODELAB_ORIGINS, MariaDB password
+
+# 3. Reload and start
+sudo systemctl daemon-reload &amp;&amp; sudo systemctl enable --now codelab-runner</code></pre>
+
+    <h4 class="fw-bold mt-4 mb-2">4. Moodle Plugin Configuration</h4>
+    <p>Navigate to <em>Site administration &gt; Plugins &gt; Text editors &gt; TinyMCE editor &gt; CodeLab</em>:</p>
+    <ul>
+        <li><strong>Address of the interactive server:</strong> <code>wss://runner.tsp.edu.rs</code></li>
+        <li><strong>Secret of the interactive server:</strong> Matching <code>CODELAB_SECRET</code></li>
+        <li><strong>Address of the Jobe server:</strong> <code>https://jobe.tsp.edu.rs</code></li>
+        <li><strong>Python in the browser:</strong> Checked (Enabled)</li>
+    </ul>
+</div>
+HTML;
+}
+
+/**
+ * Detailed HTML guide for CodeLab Runner in Serbian.
+ */
+function demo_guide_html_sr(): string {
+    return <<<'HTML'
+<div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+    <div class="d-flex align-items-center mb-3">
+        <span class="fs-2 me-3">🚀</span>
+        <div>
+            <h3 class="fw-bold mb-0 text-success">Vodič za admine i nastavnike: CodeLab Runner</h3>
+            <p class="text-muted mb-0">Arhitektura interaktivnog izvršavanja koda, sandbox izolacija i podešavanje Moodle-a</p>
+        </div>
+    </div>
+    <hr>
+    
+    <h4 class="fw-bold mt-3 mb-2">1. Pregled sistema</h4>
+    <p>CodeLab za Moodle omogućava učenicima i nastavnicima pokretanje i debagovanje koda u <strong>C, C++, Python, Java, C#, JavaScript, Pascal, PHP i SQL</strong> jezicima direktno na stranicama lekcija i kvizovima.</p>
+    <ul>
+        <li><strong>Python i JavaScript:</strong> Izvršavaju se lokalno u pregledaču preko WebAssembly tehnologije (Pyodide). Trenutni odziv i nula opterećenja za server.</li>
+        <li><strong>C, C++, Java, C# i SQL:</strong> Izvršavaju se u realnom vremenu na <strong>CodeLab Runner</strong> serveru preko WebSocket protokola (<code>wss://runner.tsp.edu.rs</code>), sa unosom sa tastature tokom rada i debagovanjem liniju po liniju (GDB).</li>
+        <li><strong>Automatsko ocenjivanje u kvizovima:</strong> Koristi Jobe server (<code>https://jobe.tsp.edu.rs</code>) ili Runner API za proveru tačnosti učeničkog rešenja prema zadatim test primerima.</li>
+    </ul>
+
+    <h4 class="fw-bold mt-4 mb-2">2. Bezbednost i sandbox izolacija</h4>
+    <div class="p-3 bg-light rounded-3 mb-3 border">
+        <ol class="mb-0">
+            <li><strong>Autentifikacija tokenom:</strong> Pri pokretanju koda Moodle izdaje jednokratni HMAC-SHA256 token sa rokom važenja od 60 sekundi.</li>
+            <li><strong>WebSocket strimovanje:</strong> Pregledač komunicira direktno sa Runner servisom, čime se obezbeđuje interaktivni rad konzole.</li>
+            <li><strong>Bubblewrap Sandbox (<code>bwrap</code>):</strong> Program se pokreće u potpuno izolovanom Linux sandboxu:
+                <ul>
+                    <li>Bez pristupa lokalnoj mreži ili internetu (<code>--unshare-net</code>).</li>
+                    <li>Sistem datoteka montiran samo za čitanje (read-only).</li>
+                    <li>Limitirani resursi: maksimalno vreme procesora, 128 MB radne memorije i limitirana veličina datoteka.</li>
+                </ul>
+            </li>
+            <li><strong>SQL bezbedna baza (MariaDB):</strong> Svaka SQL sesija automatski dobija svoju privremenu bazu i korisnika sa vremenskim limitom (5 sekundi), koja se automatski briše po završetku rada.</li>
+        </ol>
+    </div>
+
+    <h4 class="fw-bold mt-4 mb-2">3. Podešavanje za administratore</h4>
+    <pre class="bg-dark text-light p-3 rounded-3" style="font-size: 13px;"><code># 1. Instalacija paketa na serveru
+sudo apt-get install bubblewrap build-essential openjdk-21-jdk-headless mono-mcs gdb mariadb-server
+
+# 2. Podešavanje servisa i tajnog ključa
+sudo cp deploy/codelab-runner.service /etc/systemd/system/
+sudo cp deploy/codelab-runner.env.example /etc/codelab-runner.env
+# Uredite /etc/codelab-runner.env (CODELAB_SECRET, CODELAB_ORIGINS)
+
+# 3. Pokretanje servisa
+sudo systemctl daemon-reload &amp;&amp; sudo systemctl enable --now codelab-runner</code></pre>
+
+    <h4 class="fw-bold mt-4 mb-2">4. Podešavanja u Moodle administraciji</h4>
+    <p>Otvorite <em>Administracija sajta &gt; Dodaci &gt; Editori teksta &gt; TinyMCE editor &gt; CodeLab</em>:</p>
+    <ul>
+        <li><strong>Adresa interaktivnog servera:</strong> <code>wss://runner.tsp.edu.rs</code></li>
+        <li><strong>Tajna interaktivnog servera:</strong> Ista šifra kao <code>CODELAB_SECRET</code></li>
+        <li><strong>Adresa Jobe servera:</strong> <code>https://jobe.tsp.edu.rs</code></li>
+        <li><strong>Python u pregledaču:</strong> Štiklirano (Uključeno)</li>
+    </ul>
+</div>
+HTML;
 }
 
 /**
