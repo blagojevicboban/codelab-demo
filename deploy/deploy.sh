@@ -12,23 +12,26 @@ if [ "$1" != "--no-pull" ]; then
 fi
 
 # Locate Moodle directory by searching for config.php
-if [ -n "$MOODLE_DIR" ] && [ -f "$MOODLE_DIR/config.php" ]; then
-    TARGET_DIR="$MOODLE_DIR"
-elif [ -f "$HOME/public_html/config.php" ]; then
-    TARGET_DIR="$HOME/public_html"
-elif [ -f "$HOME/public_html/moodle/config.php" ]; then
-    TARGET_DIR="$HOME/public_html/moodle"
-elif [ -f "/home/codelab/public_html/config.php" ]; then
-    TARGET_DIR="/home/codelab/public_html"
-elif [ -f "/home/algoritam/public_html/config.php" ]; then
-    TARGET_DIR="/home/algoritam/public_html"
-elif [ -f "/home/aisim/public_html/config.php" ]; then
-    TARGET_DIR="/home/aisim/public_html"
-elif [ -f "/var/www/html/config.php" ]; then
-    TARGET_DIR="/var/www/html"
-elif [ -f "/var/www/moodle/config.php" ]; then
-    TARGET_DIR="/var/www/moodle"
-else
+TARGET_DIR=""
+for cand in \
+    "$MOODLE_DIR" \
+    "$HOME/public_html/moodle" \
+    "$HOME/public_html" \
+    "/home/codelab/public_html/moodle" \
+    "/home/algoritam/public_html/moodle" \
+    "/home/aisim/public_html/moodle" \
+    "/home/codelab/public_html" \
+    "/home/algoritam/public_html" \
+    "/home/aisim/public_html" \
+    "/var/www/moodle" \
+    "/var/www/html"; do
+    if [ -n "$cand" ] && [ -f "$cand/config.php" ]; then
+        TARGET_DIR="$cand"
+        break
+    fi
+done
+
+if [ -z "$TARGET_DIR" ]; then
     echo "ERROR: Could not locate Moodle config.php!"
     exit 1
 fi
