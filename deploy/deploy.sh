@@ -66,6 +66,7 @@ sync_plugin() {
         git clone --depth 1 "$repo_url" "$dest_dir" || true
     fi
     if [ -f "${dest_dir}/version.php" ]; then
+        chmod -R a+rX "$dest_dir" 2>/dev/null || true
         echo "[$(date -Iseconds)] Plugin ${plugin_name} verified OK (version.php exists)"
     else
         echo "[$(date -Iseconds)] ERROR: Plugin ${plugin_name} missing version.php at ${dest_dir}!"
