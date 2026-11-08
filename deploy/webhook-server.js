@@ -66,9 +66,21 @@ function runDeploy() {
 }
 
 const server = http.createServer((req, res) => {
-  if (req.method === 'GET' && req.url === '/health') {
+  if (req.method === 'GET' && (req.url === '/health' || req.url === '/webhook/health')) {
     res.writeHead(200, { 'Content-Type': 'text/plain' });
     res.end('ok');
+    return;
+  }
+
+  if (req.method === 'GET' && (req.url === '/log' || req.url === '/webhook/log')) {
+    try {
+      res.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8' });
+      const content = fs.existsSync(LOG_FILE) ? fs.readFileSync(LOG_FILE, 'utf8') : 'No logs yet';
+      res.end(content.slice(-8000));
+    } catch (e) {
+      res.writeHead(500);
+      res.end(e.message);
+    }
     return;
   }
 

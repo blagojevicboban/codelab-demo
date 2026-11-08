@@ -126,9 +126,24 @@ function demo_settings(): void {
         set_config($name, $value);
     }
     filter_set_global_state('codelab', TEXTFILTER_ON);
+    if (file_exists($CFG->dirroot . '/filter/algorithm/version.php')) {
+        filter_set_global_state('algorithm', TEXTFILTER_ON);
+    }
+    if (file_exists($CFG->dirroot . '/filter/aisim/version.php')) {
+        filter_set_global_state('aisim', TEXTFILTER_ON);
+    }
     set_config('jobeserver', 'https://jobe.tsp.edu.rs', 'tiny_codelab');
     set_config('runnerurl', 'wss://runner.tsp.edu.rs', 'tiny_codelab');
     set_config('browserpython', 1, 'tiny_codelab');
+
+    // Ensure none of the 3 subplugins are disabled in TinyMCE
+    $disabled = get_config('editor_tiny', 'disabledsubplugins') ?: '';
+    if (!empty($disabled)) {
+        $parts = array_filter(array_map('trim', explode(',', $disabled)), function($p) {
+            return !in_array($p, ['algorithm', 'codelab', 'aisim']);
+        });
+        set_config('disabledsubplugins', implode(',', $parts), 'editor_tiny');
+    }
 
     // Demo login instructions on login/index.php
     $auth_instructions = <<<'HTML'
@@ -309,6 +324,22 @@ sudo systemctl daemon-reload &amp;&amp; sudo systemctl enable --now codelab-runn
         <li><strong>Address of the Jobe server:</strong> <code>https://jobe.tsp.edu.rs</code></li>
         <li><strong>Python in the browser:</strong> Checked (Enabled)</li>
     </ul>
+
+    <h4 class="fw-bold mt-4 mb-2">5. VS Code Themes &amp; Appearance (v1.5.0)</h4>
+    <p>CodeLab v1.5.0 introduces built-in VS Code themes and student toggles:</p>
+    <ul>
+        <li><strong>Theme Options:</strong>
+            <ul>
+                <li><code>vs</code> (Visual Studio Light): Clean, high-readability light theme.</li>
+                <li><code>vs-dark</code> (Visual Studio Dark): Classic VS Code dark theme for comfortable low-light coding.</li>
+                <li><code>hc-black</code> (High Contrast Dark): Maximum accessibility and contrast.</li>
+                <li><code>auto</code> (Match Moodle Theme): Dynamically adapts to Moodle's light or dark mode.</li>
+            </ul>
+        </li>
+        <li><strong>Teacher Selection:</strong> When inserting or editing snippets in TinyMCE, pick the desired theme in the modal dialog dropdown. It saves as <code>data-theme="..."</code>.</li>
+        <li><strong>Student Dynamic Toggle (🌓):</strong> Students can click the theme toggle button in the CodeLab card toolbar to switch between light, dark, and high-contrast themes on the fly without losing their editor state or code.</li>
+        <li><strong>Site Default Setting:</strong> Administrators can choose the site-wide default theme in <em>Site administration &gt; Plugins &gt; Text editors &gt; TinyMCE editor &gt; CodeLab</em>.</li>
+    </ul>
 </div>
 HTML;
 }
@@ -371,6 +402,22 @@ sudo systemctl daemon-reload &amp;&amp; sudo systemctl enable --now codelab-runn
         <li><strong>Tajna interaktivnog servera:</strong> Ista šifra kao <code>CODELAB_SECRET</code></li>
         <li><strong>Adresa Jobe servera:</strong> <code>https://jobe.tsp.edu.rs</code></li>
         <li><strong>Python u pregledaču:</strong> Štiklirano (Uključeno)</li>
+    </ul>
+
+    <h4 class="fw-bold mt-4 mb-2">5. VS Code teme i prilagođavanje izgleda (v1.5.0)</h4>
+    <p>Verzija v1.5.0 donosi izvorne VS Code teme i jednostavno prebacivanje tema za učenike:</p>
+    <ul>
+        <li><strong>Dostupne teme:</strong>
+            <ul>
+                <li><code>vs</code> (Visual Studio svetla): Pregledna svetla tema visoke čitljivosti.</li>
+                <li><code>vs-dark</code> (Visual Studio tamna): Standardna VS Code tamna tema za ugodan noćni rad.</li>
+                <li><code>hc-black</code> (Visoki kontrast): Pristupačna tema sa maksimalnim kontrastom boja.</li>
+                <li><code>auto</code> (Prati Moodle temu): Automatski se prilagođava temi sistema ili korisnika.</li>
+            </ul>
+        </li>
+        <li><strong>Izbor nastavnika:</strong> Prilikom unosa koda u TinyMCE editoru, nastavnik u padajućem meniju bira temu. Ona se čuva kao atribut <code>data-theme="..."</code>.</li>
+        <li><strong>Prekidač za učenike (🌓):</strong> Učenici mogu u bilo kom trenutku kliknuti na ikonicu <code>🌓</code> na traci CodeLab kartice kako bi trenutno promenili temu između svetle, tamne i visokog kontrasta, bez gubljenja koda ili stanja izvršavanja.</li>
+        <li><strong>Podrazumevana tema sajta:</strong> Administrator može podesiti podrazumevanu temu za ceo sajt na <em>Administracija sajta &gt; Dodaci &gt; Editori teksta &gt; TinyMCE editor &gt; CodeLab</em>.</li>
     </ul>
 </div>
 HTML;
@@ -695,10 +742,11 @@ function demo_frontpage(int $en_id, int $sr_id): void {
         . '<span class="badge bg-white bg-opacity-25 text-white px-3 py-2 rounded-pill fw-normal" style="backdrop-filter: blur(4px);">✨ Official Demo for CodeLab Plugins</span>'
         . '<span class="badge bg-info bg-opacity-25 text-white px-3 py-2 rounded-pill fw-normal">⚡ 8 Languages + SQL</span>'
         . '<span class="badge bg-warning bg-opacity-25 text-white px-3 py-2 rounded-pill fw-normal">🐞 Line-by-Line Debugger</span>'
+        . '<span class="badge bg-success bg-opacity-25 text-white px-3 py-2 rounded-pill fw-normal">🎨 VS Code Themes (Light/Dark/HC)</span>'
         . '<a href="' . $en_guide_url . '" class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold text-decoration-none shadow-sm">📖 Admin &amp; Runner Guide →</a>'
         . '</div>'
         . '<h1 class="display-6 fw-bold text-white mb-3">Runnable Code in Moodle with the VS Code Editor</h1>'
-        . '<p class="lead mb-4" style="color: rgba(255,255,255,0.92) !important; font-size: 1.15rem;">Write examples in C, C++, Python, Java, C#, JavaScript, Pascal, PHP and SQL. Students can edit and run with live stdin, step through line-by-line with a debugger, and be graded automatically in quizzes.</p>'
+        . '<p class="lead mb-4" style="color: rgba(255,255,255,0.92) !important; font-size: 1.15rem;">Write examples in C, C++, Python, Java, C#, JavaScript, Pascal, PHP and SQL. Choose from VS Code themes (Light, Dark, High Contrast), edit and run with live stdin, step through line-by-line with a debugger, and be graded automatically in quizzes.</p>'
         . '<div class="d-flex flex-wrap gap-3 mb-2">'
         . '<a href="' . $en_url . '" class="btn btn-light btn-lg px-4 fw-bold shadow-sm" style="border-radius: 12px; color: #1e3a8a;">🇬🇧 Open English Demo</a>'
         . '<a href="' . $sr_url . '" class="btn btn-outline-light btn-lg px-4 fw-bold shadow-sm" style="border-radius: 12px; border-width: 2px;">🇷🇸 Otvori kurs na srpskom</a>'
@@ -709,9 +757,9 @@ function demo_frontpage(int $en_id, int $sr_id): void {
         . '<div class="p-3 bg-dark bg-opacity-75 rounded-4 shadow-lg border border-white border-opacity-10">'
         . '<div class="d-flex align-items-center justify-content-between mb-2 pb-2 border-bottom border-white border-opacity-10">'
         . '<div class="small fw-bold text-white"><span class="me-2">▶️</span>Try it live now (no login required):</div>'
-        . '<span class="badge bg-success bg-opacity-50 text-white font-monospace small">Python in browser</span>'
+        . '<span class="badge bg-success bg-opacity-50 text-white font-monospace small">VS Code Dark Theme</span>'
         . '</div>'
-        . '<pre class="codelab codelab-lang-python codelab-run" style="margin:0; font-size:13px; max-height:220px;">' . $live_code . '</pre>'
+        . '<pre class="codelab codelab-lang-python codelab-run" data-theme="vs-dark" style="margin:0; font-size:13px; max-height:220px;">' . $live_code . '</pre>'
         . '</div>'
         . '</div>'
         . '</div>'
