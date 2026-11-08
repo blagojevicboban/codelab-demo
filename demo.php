@@ -27,7 +27,13 @@
  */
 
 define('CLI_SCRIPT', true);
-require(__DIR__ . '/config.php');
+if (file_exists(__DIR__ . '/config.php')) {
+    require(__DIR__ . '/config.php');
+} else if (file_exists(dirname(__DIR__) . '/config.php')) {
+    require(dirname(__DIR__) . '/config.php');
+} else {
+    require('config.php');
+}
 require_once($CFG->dirroot . '/course/lib.php');
 require_once($CFG->dirroot . '/user/lib.php');
 require_once($CFG->libdir . '/filterlib.php');

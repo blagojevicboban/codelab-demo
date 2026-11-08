@@ -47,9 +47,11 @@ exec > >(tee "$LOG_FILE") 2>&1
 echo "=== Deploy started at $(date -Iseconds) ==="
 echo "[$(date -Iseconds)] Active Moodle DIRROOT: ${TARGET_DIR}"
 
-echo "[$(date -Iseconds)] Deploying demo files to ${TARGET_DIR}..."
+echo "[$(date -Iseconds)] Deploying demo files..."
 cp demo.php "${TARGET_DIR}/"
+cp demo.php "${PARENT_DIR}/" 2>/dev/null || true
 cp -f *.mbz "${TARGET_DIR}/" 2>/dev/null || true
+cp -f *.mbz "${PARENT_DIR}/" 2>/dev/null || true
 if [ -d cards ]; then
     mkdir -p "${TARGET_DIR}/cards"
     cp -r cards/* "${TARGET_DIR}/cards/"
@@ -115,12 +117,16 @@ if [ ! -f "${CLI_DIR}/upgrade.php" ] && [ -f "${PARENT_DIR}/admin/cli/upgrade.ph
 fi
 
 echo "[$(date -Iseconds)] Running Moodle database and plugin upgrades using ${CLI_DIR}..."
-/usr/bin/php "${CLI_DIR}/upgrade.php" --non-interactive || true
+/usr/bin/php -d max_input_vars=10000 "${CLI_DIR}/upgrade.php" --non-interactive || true
 
 echo "[$(date -Iseconds)] Purging Moodle caches..."
 /usr/bin/php "${CLI_DIR}/purge_caches.php" || true
 
 echo "[$(date -Iseconds)] Running demo.php reset..."
-/usr/bin/php "${TARGET_DIR}/demo.php" reset
+if [ -f "${PARENT_DIR}/demo.php" ]; then
+    /usr/bin/php -d max_input_vars=10000 "${PARENT_DIR}/demo.php" reset
+else
+    /usr/bin/php -d max_input_vars=10000 "${TARGET_DIR}/demo.php" reset
+fi
 
-echo "[$(date -Iseconds)] CodeLab demo deploy finished successfully!"
+echo "[$(date -Iseconds)] Demo deploy finished successfully!"
