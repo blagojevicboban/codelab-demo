@@ -41,6 +41,16 @@ const DEMO_USERS = [
     'student' => ['firstname' => 'Demo', 'lastname' => 'Student', 'role' => 'student'],
 ];
 
+const DEMO_SUMMARIES = [
+    'en' => 'Interactive coding and debugging directly in Moodle with CodeLab. Write, run, and step-debug Python, JavaScript, C, C++, Java, PHP, SQL, and HTML/CSS with instant browser output, interactive step debugger, and autograded coding quizzes.',
+    'sr' => 'Interaktivno programiranje i otklanjanje grešaka u Moodle-u uz CodeLab. Pišite, pokrećite i koračno debagirajte Python, JavaScript, C, C++, Java, PHP, SQL i HTML/CSS uz trenutni izlaz, vizuelni debager i automatski ocenjivane zadatke.',
+];
+
+const DEMO_CARDS = [
+    'en' => 'cards/card-en.png',
+    'sr' => 'cards/card-sr.png',
+];
+
 $command = $argv[1] ?? '';
 if (!in_array($command, ['setup', 'reset'], true)) {
     fwrite(STDERR, "Usage: php demo.php setup|reset\n");
@@ -60,12 +70,14 @@ if (!is_readable($en_mbz)) {
 }
 $en_id = demo_restore_course('CODELAB-DEMO', 'CodeLab: demo (English)', $en_mbz);
 demo_users($en_id);
+demo_set_course_overview($en_id, DEMO_SUMMARIES['en'], DEMO_CARDS['en']);
 
 $sr_mbz = __DIR__ . '/codelab-demo-sr.mbz';
 $sr_id = null;
 if (is_readable($sr_mbz)) {
     $sr_id = demo_restore_course('CODELAB-DEMO-SR', 'CodeLab: demo (srpski)', $sr_mbz);
     demo_users($sr_id);
+    demo_set_course_overview($sr_id, DEMO_SUMMARIES['sr'], DEMO_CARDS['sr']);
 }
 
 // Cross-link banners and front page
@@ -374,6 +386,52 @@ function demo_languages(): void {
         echo "language packs: " . implode(' ', $controller->info) . "\n";
     } catch (\Throwable $e) {
         echo "language packs not installed: " . $e->getMessage() . "\n";
+    }
+}
+
+/**
+ * Sets the course summary and attaches the custom card cover image to overviewfiles.
+ */
+function demo_set_course_overview(int $courseid, string $summary, string $cardfile): void {
+    global $DB;
+
+    // 1. Set summary
+    if ($summary !== '') {
+        $DB->set_field('course', 'summary', $summary, ['id' => $courseid]);
+        $DB->set_field('course', 'summaryformat', FORMAT_HTML, ['id' => $courseid]);
+    }
+
+    // 2. Attach overview card image
+    $candidates = [
+        __DIR__ . '/' . $cardfile,
+        __DIR__ . '/' . basename($cardfile),
+    ];
+    $found = null;
+    foreach ($candidates as $cand) {
+        if (file_exists($cand)) {
+            $found = $cand;
+            break;
+        }
+    }
+
+    if ($found) {
+        try {
+            $context = \context_course::instance($courseid);
+            $fs = get_file_storage();
+            $fs->delete_area_files($context->id, 'course', 'overviewfiles');
+            $filerecord = [
+                'contextid' => $context->id,
+                'component' => 'course',
+                'filearea' => 'overviewfiles',
+                'itemid' => 0,
+                'filepath' => '/',
+                'filename' => basename($found),
+            ];
+            $fs->create_file_from_pathname($filerecord, $found);
+            echo "course {$courseid} overview image set: " . basename($found) . "\n";
+        } catch (\Throwable $e) {
+            echo "course {$courseid} overview image warning: " . $e->getMessage() . "\n";
+        }
     }
 }
 

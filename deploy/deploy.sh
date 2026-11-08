@@ -10,6 +10,10 @@ MOODLE_DIR="/home/codelab/public_html/moodle"
 cp demo.php "$MOODLE_DIR/"
 cp codelab-demo.mbz "$MOODLE_DIR/"
 cp codelab-demo-sr.mbz "$MOODLE_DIR/"
+if [ -d cards ]; then
+    mkdir -p "$MOODLE_DIR/cards"
+    cp -r cards/* "$MOODLE_DIR/cards/"
+fi
 
 echo "[$(date -Iseconds)] Purging Moodle caches..."
 /usr/bin/php "$MOODLE_DIR/admin/cli/purge_caches.php" || true
