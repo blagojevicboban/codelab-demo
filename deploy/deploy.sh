@@ -34,8 +34,8 @@ LOG_FILE="${TARGET_DIR}/deploy_log.txt"
 exec > >(tee -a "$LOG_FILE") 2>&1
 echo "=== Deploy started at $(date -Iseconds) ==="
 
-# If Moodle has a /public directory (Moodle 5.0+ structure), plugins and webroot are in /public
-if [ -d "${TARGET_DIR}/public" ] && [ -f "${TARGET_DIR}/public/version.php" ]; then
+# If Moodle has a /public directory (Moodle 5.0+ public dirroot), plugins and webroot are in /public
+if [ -d "${TARGET_DIR}/public" ]; then
     TARGET_DIR="${TARGET_DIR}/public"
 fi
 
