@@ -34,7 +34,12 @@ LOG_FILE="${TARGET_DIR}/deploy_log.txt"
 exec > >(tee -a "$LOG_FILE") 2>&1
 echo "=== Deploy started at $(date -Iseconds) ==="
 
-echo "[$(date -Iseconds)] Deploying demo files to ${TARGET_DIR}..."
+# If Moodle has a /public directory (Moodle 5.0+ structure), plugins and webroot are in /public
+if [ -d "${TARGET_DIR}/public" ] && [ -f "${TARGET_DIR}/public/version.php" ]; then
+    TARGET_DIR="${TARGET_DIR}/public"
+fi
+
+echo "[$(date -Iseconds)] Active Moodle DIRROOT: ${TARGET_DIR}"
 cp demo.php "${TARGET_DIR}/"
 cp -f *.mbz "${TARGET_DIR}/" 2>/dev/null || true
 if [ -d cards ]; then
