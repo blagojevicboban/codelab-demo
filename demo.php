@@ -110,11 +110,6 @@ if ($sr_id !== null) {
  */
 function demo_settings(): void {
     global $CFG;
-    echo "DEBUG DIRROOT: " . $CFG->dirroot . "\n";
-    echo "DEBUG WWWROOT: " . $CFG->wwwroot . "\n";
-    echo "DEBUG AISIM FILTER: " . (file_exists($CFG->dirroot . '/filter/aisim/version.php') ? 'YES' : 'NO') . "\n";
-    echo "DEBUG CODELAB FILTER: " . (file_exists($CFG->dirroot . '/filter/codelab/version.php') ? 'YES' : 'NO') . "\n";
-    echo "DEBUG ALGORITHM FILTER: " . (file_exists($CFG->dirroot . '/filter/algorithm/version.php') ? 'YES' : 'NO') . "\n";
 
     $settings = [
         'noemailever' => 1,         // Nothing is ever mailed.

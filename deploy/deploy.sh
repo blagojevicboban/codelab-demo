@@ -101,11 +101,16 @@ sync_plugin "https://github.com/blagojevicboban/moodle-tiny_aisim.git" "${TARGET
 sync_plugin "https://github.com/blagojevicboban/moodle-filter_aisim.git" "${TARGET_DIR}/filter/aisim" "filter_aisim"
 sync_plugin "https://github.com/blagojevicboban/moodle-qtype_aisim.git" "${TARGET_DIR}/question/type/aisim" "qtype_aisim"
 
-echo "[$(date -Iseconds)] Running Moodle database and plugin upgrades..."
-/usr/bin/php "${TARGET_DIR}/admin/cli/upgrade.php" --non-interactive || true
+CLI_DIR="${TARGET_DIR}/admin/cli"
+if [ ! -f "${CLI_DIR}/upgrade.php" ] && [ -f "$(dirname "$TARGET_DIR")/admin/cli/upgrade.php" ]; then
+    CLI_DIR="$(dirname "$TARGET_DIR")/admin/cli"
+fi
+
+echo "[$(date -Iseconds)] Running Moodle database and plugin upgrades using ${CLI_DIR}..."
+/usr/bin/php "${CLI_DIR}/upgrade.php" --non-interactive || true
 
 echo "[$(date -Iseconds)] Purging Moodle caches..."
-/usr/bin/php "${TARGET_DIR}/admin/cli/purge_caches.php" || true
+/usr/bin/php "${CLI_DIR}/purge_caches.php" || true
 
 echo "[$(date -Iseconds)] Running demo.php reset..."
 /usr/bin/php "${TARGET_DIR}/demo.php" reset
