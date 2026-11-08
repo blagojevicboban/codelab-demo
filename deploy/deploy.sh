@@ -24,6 +24,10 @@ else
     exit 1
 fi
 
+LOG_FILE="${TARGET_DIR}/deploy_log.txt"
+exec > >(tee -a "$LOG_FILE") 2>&1
+echo "=== Deploy started at $(date -Iseconds) ==="
+
 echo "[$(date -Iseconds)] Deploying demo files to ${TARGET_DIR}..."
 cp demo.php "${TARGET_DIR}/"
 cp -f *.mbz "${TARGET_DIR}/" 2>/dev/null || true
@@ -42,8 +46,8 @@ sync_plugin() {
     if [ -d "$dest_dir/.git" ]; then
         (
             cd "$dest_dir"
-            git fetch --depth 1 origin main || git fetch origin main || true
-            git reset --hard FETCH_HEAD || git reset --hard origin/main || true
+            git fetch --depth 1 origin || git fetch origin || true
+            git reset --hard FETCH_HEAD || true
             git clean -fd || true
         ) || true
     elif [ -d "$dest_dir" ]; then
@@ -58,7 +62,13 @@ sync_plugin() {
             rm -rf "$tmp_dir"
         fi
     else
+        echo "[$(date -Iseconds)] Cloning new plugin ${plugin_name} from ${repo_url}..."
         git clone --depth 1 "$repo_url" "$dest_dir" || true
+    fi
+    if [ -f "${dest_dir}/version.php" ]; then
+        echo "[$(date -Iseconds)] Plugin ${plugin_name} verified OK (version.php exists)"
+    else
+        echo "[$(date -Iseconds)] ERROR: Plugin ${plugin_name} missing version.php at ${dest_dir}!"
     fi
 }
 
@@ -89,4 +99,3 @@ echo "[$(date -Iseconds)] Running demo.php reset..."
 /usr/bin/php "${TARGET_DIR}/demo.php" reset
 
 echo "[$(date -Iseconds)] CodeLab demo deploy finished successfully!"
-pm2 reload codelab-webhook >/dev/null 2>&1 || true
