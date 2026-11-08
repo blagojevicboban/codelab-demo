@@ -245,6 +245,13 @@ CSS;
     foreach (['moodle/user:changeownpassword', 'moodle/user:editownprofile', 'moodle/user:manageownfiles'] as $cap) {
         assign_capability($cap, CAP_PROHIBIT, $userrole->id, $system->id, true);
     }
+
+    // Allow guests on the public demo to run programs (C, C++, Java, Python...)
+    $guestroles = get_archetype_roles('guest');
+    if (!empty($guestroles)) {
+        $guestrole = reset($guestroles);
+        assign_capability('tiny/codelab:run', CAP_ALLOW, $guestrole->id, $system->id, true);
+    }
     echo "settings and custom CSS done\n";
 }
 
@@ -550,6 +557,15 @@ function demo_guest_access(int $courseid): void {
     } else if ($instance->status != ENROL_INSTANCE_ENABLED) {
         $guest->update_status($instance, ENROL_INSTANCE_ENABLED);
     }
+
+    // Allow guests on the demo course to run programs (C, C++, Java, Python...)
+    $guestroles = get_archetype_roles('guest');
+    if (!empty($guestroles)) {
+        $guestrole = reset($guestroles);
+        $context = context_course::instance($courseid);
+        assign_capability('tiny/codelab:run', CAP_ALLOW, $guestrole->id, $context->id, true);
+        $context->mark_dirty();
+    }
 }
 
 /**
@@ -716,7 +732,7 @@ function demo_frontpage(int $en_id, int $sr_id): void {
         . '<a href="https://github.com/blagojevicboban/moodle-tiny_codelab">CodeLab for TinyMCE</a> (code examples in the editor), '
         . '<a href="https://github.com/blagojevicboban/moodle-filter_codelab">CodeLab filter</a> (run and step for readers) and '
         . '<a href="https://github.com/blagojevicboban/moodle-qtype_codelab">CodeLab question type</a> (programs graded on tests).</p>'
-        . '<p>Open the demo courses as a guest (Python runs), or log in with one of these accounts (password <strong>' . DEMO_PASSWORD . '</strong>):</p><ul>'
+        . '<p>Open the demo courses as a guest, or log in with one of these accounts (password <strong>' . DEMO_PASSWORD . '</strong>):</p><ul>'
         . '<li><strong>teacher</strong>: edit the pages and the quiz questions, insert code examples</li>'
         . '<li><strong>student</strong>: run every language, step through C and Python, take the quizzes</li></ul>'
         . '<p>Courses available: <a href="' . $en_url . '"><strong>CodeLab: demo (English)</strong></a> · <a href="' . $sr_url . '"><strong>CodeLab: demo (srpski)</strong></a> · <a href="' . $en_guide_url . '"><strong>📖 Administrator &amp; Teacher Guide</strong></a></p>'
@@ -797,7 +813,7 @@ function demo_frontpage(int $en_id, int $sr_id): void {
         . '<div class="card border-0 shadow-sm rounded-4 mb-4 p-3 bg-light">'
         . '<div class="row g-2 align-items-center text-center text-md-start">'
         . '<div class="col-md-3 fw-bold text-dark"><span class="fs-5 me-2">⚡</span>Instant Demo Access:</div>'
-        . '<div class="col-md-3"><div class="p-2 px-3 bg-white rounded-3 shadow-sm border small"><strong>👤 Guest:</strong> Explore &amp; run Python in browser</div></div>'
+        . '<div class="col-md-3"><div class="p-2 px-3 bg-white rounded-3 shadow-sm border small"><strong>👤 Guest:</strong> Run &amp; step through all code examples</div></div>'
         . '<div class="col-md-3"><div class="p-2 px-3 bg-white rounded-3 shadow-sm border small"><strong>🎓 Student:</strong> <code>student</code> / <code>Demo-2026</code></div></div>'
         . '<div class="col-md-3"><div class="p-2 px-3 bg-white rounded-3 shadow-sm border small"><strong>🧑‍🏫 Teacher:</strong> <code>teacher</code> / <code>Demo-2026</code></div></div>'
         . '</div></div>'
