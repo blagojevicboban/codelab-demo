@@ -3,10 +3,13 @@ set -e
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$DIR"
 
-echo "[$(date -Iseconds)] Pulling latest demo files from GitHub..."
-git fetch origin main || true
-git reset --hard FETCH_HEAD || git pull origin main || true
-git clean -fd || true
+if [ "$1" != "--no-pull" ]; then
+    echo "[$(date -Iseconds)] Pulling latest demo files from GitHub..."
+    git fetch origin main
+    git reset --hard FETCH_HEAD
+    git clean -fd
+    exec /bin/bash "$0" --no-pull "$@"
+fi
 
 # Locate Moodle directory by searching for config.php
 if [ -n "$MOODLE_DIR" ] && [ -f "$MOODLE_DIR/config.php" ]; then
@@ -30,16 +33,18 @@ else
     exit 1
 fi
 
-LOG_FILE="${TARGET_DIR}/deploy_log.txt"
-exec > >(tee -a "$LOG_FILE") 2>&1
-echo "=== Deploy started at $(date -Iseconds) ==="
-
 # If Moodle has a /public directory (Moodle 5.0+ public dirroot), plugins and webroot are in /public
+PARENT_DIR="$TARGET_DIR"
 if [ -d "${TARGET_DIR}/public" ]; then
     TARGET_DIR="${TARGET_DIR}/public"
 fi
 
+LOG_FILE="${TARGET_DIR}/deploy_log.txt"
+exec > >(tee "$LOG_FILE") 2>&1
+echo "=== Deploy started at $(date -Iseconds) ==="
 echo "[$(date -Iseconds)] Active Moodle DIRROOT: ${TARGET_DIR}"
+
+echo "[$(date -Iseconds)] Deploying demo files to ${TARGET_DIR}..."
 cp demo.php "${TARGET_DIR}/"
 cp -f *.mbz "${TARGET_DIR}/" 2>/dev/null || true
 if [ -d cards ]; then
@@ -102,8 +107,8 @@ sync_plugin "https://github.com/blagojevicboban/moodle-filter_aisim.git" "${TARG
 sync_plugin "https://github.com/blagojevicboban/moodle-qtype_aisim.git" "${TARGET_DIR}/question/type/aisim" "qtype_aisim"
 
 CLI_DIR="${TARGET_DIR}/admin/cli"
-if [ ! -f "${CLI_DIR}/upgrade.php" ] && [ -f "$(dirname "$TARGET_DIR")/admin/cli/upgrade.php" ]; then
-    CLI_DIR="$(dirname "$TARGET_DIR")/admin/cli"
+if [ ! -f "${CLI_DIR}/upgrade.php" ] && [ -f "${PARENT_DIR}/admin/cli/upgrade.php" ]; then
+    CLI_DIR="${PARENT_DIR}/admin/cli"
 fi
 
 echo "[$(date -Iseconds)] Running Moodle database and plugin upgrades using ${CLI_DIR}..."
