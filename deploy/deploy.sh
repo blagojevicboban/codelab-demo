@@ -8,19 +8,25 @@ git fetch origin main || true
 git reset --hard FETCH_HEAD || git pull origin main || true
 git clean -fd || true
 
-# Locate Moodle directory
-if [ -n "$MOODLE_DIR" ] && [ -d "$MOODLE_DIR" ]; then
+# Locate Moodle directory by searching for config.php
+if [ -n "$MOODLE_DIR" ] && [ -f "$MOODLE_DIR/config.php" ]; then
     TARGET_DIR="$MOODLE_DIR"
+elif [ -f "$HOME/public_html/config.php" ]; then
+    TARGET_DIR="$HOME/public_html"
 elif [ -f "$HOME/public_html/moodle/config.php" ]; then
     TARGET_DIR="$HOME/public_html/moodle"
-elif [ -f "/home/codelab/public_html/moodle/config.php" ]; then
-    TARGET_DIR="/home/codelab/public_html/moodle"
-elif [ -d "/home/codelab/public_html/moodle" ]; then
-    TARGET_DIR="/home/codelab/public_html/moodle"
+elif [ -f "/home/codelab/public_html/config.php" ]; then
+    TARGET_DIR="/home/codelab/public_html"
+elif [ -f "/home/algoritam/public_html/config.php" ]; then
+    TARGET_DIR="/home/algoritam/public_html"
+elif [ -f "/home/aisim/public_html/config.php" ]; then
+    TARGET_DIR="/home/aisim/public_html"
+elif [ -f "/var/www/html/config.php" ]; then
+    TARGET_DIR="/var/www/html"
 elif [ -f "/var/www/moodle/config.php" ]; then
     TARGET_DIR="/var/www/moodle"
 else
-    echo "ERROR: Could not locate Moodle directory!"
+    echo "ERROR: Could not locate Moodle config.php!"
     exit 1
 fi
 
