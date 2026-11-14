@@ -45,6 +45,10 @@ fi
 # Log outside the web root, it is readable from the web inside public/.
 LOG_FILE="${HOME}/deploy_log.txt"
 rm -f "${TARGET_DIR}/deploy_log.txt" "${PARENT_DIR}/deploy_log.txt"
+# The plugins are git clones; keep their .git folders hidden from the web.
+if ! grep -qsF 'RedirectMatch 404 /\.git' "${TARGET_DIR}/.htaccess"; then
+    printf '\n%s\n%s\n' '# Block .git folders of the plugins (deploy pulls them with git)' 'RedirectMatch 404 /\.git' >> "${TARGET_DIR}/.htaccess"
+fi
 exec > >(tee "$LOG_FILE") 2>&1
 echo "=== Deploy started at $(date -Iseconds) ==="
 echo "[$(date -Iseconds)] Active Moodle DIRROOT: ${TARGET_DIR}"
