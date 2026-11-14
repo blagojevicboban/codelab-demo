@@ -42,7 +42,9 @@ if [ -d "${TARGET_DIR}/public" ]; then
     TARGET_DIR="${TARGET_DIR}/public"
 fi
 
-LOG_FILE="${TARGET_DIR}/deploy_log.txt"
+# Log outside the web root, it is readable from the web inside public/.
+LOG_FILE="${HOME}/deploy_log.txt"
+rm -f "${TARGET_DIR}/deploy_log.txt" "${PARENT_DIR}/deploy_log.txt"
 exec > >(tee "$LOG_FILE") 2>&1
 echo "=== Deploy started at $(date -Iseconds) ==="
 echo "[$(date -Iseconds)] Active Moodle DIRROOT: ${TARGET_DIR}"
