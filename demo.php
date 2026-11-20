@@ -780,7 +780,7 @@ function demo_frontpage(int $en_id, int $sr_id): void {
         . '<div class="col-lg-5 mt-4 mt-lg-0">'
         . '<div class="p-3 bg-dark bg-opacity-75 rounded-4 shadow-lg border border-white border-opacity-10">'
         . '<div class="d-flex align-items-center justify-content-between mb-2 pb-2 border-bottom border-white border-opacity-10">'
-        . '<div class="small fw-bold text-white"><span class="me-2">▶️</span>Try it live now (no login required):</div>'
+        . '<div class="small fw-bold text-white">Try it live now (no login required):</div>'
         . '<span class="badge bg-success bg-opacity-50 text-white font-monospace small">VS Code Dark Theme</span>'
         . '</div>'
         . '<pre class="codelab codelab-lang-python codelab-run codelab-theme-vs-dark" style="margin:0; font-size:13px; max-height:220px;">' . $live_code . '</pre>'
@@ -820,7 +820,7 @@ function demo_frontpage(int $en_id, int $sr_id): void {
         // 3 Plugin Cards
         . '<div class="row g-3 mb-4">'
         . '<div class="col-md-4"><div class="card h-100 border-0 shadow-sm rounded-3 p-3"><div class="d-flex align-items-center mb-2"><h5 class="card-title mb-0 fw-bold"><a href="https://github.com/blagojevicboban/moodle-tiny_codelab" target="_blank" class="text-decoration-none">tiny_codelab</a></h5></div><p class="card-text text-muted small mb-0">Insert runnable examples in any Moodle text with the Monaco editor of VS Code: syntax highlighting, auto-complete, Run on Jobe or Python in browser.</p></div></div>'
-        . '<div class="col-md-4"><div class="card h-100 border-0 shadow-sm rounded-3 p-3"><div class="d-flex align-items-center mb-2"><span class="fs-4 me-2">▶️</span><h5 class="card-title mb-0 fw-bold"><a href="https://github.com/blagojevicboban/moodle-filter_codelab" target="_blank" class="text-decoration-none">filter_codelab</a></h5></div><p class="card-text text-muted small mb-0">Turns examples into interactive editors readers can run: live stdin input, Step debugger with breakpoints, call stack and trace table, SQL queries.</p></div></div>'
+        . '<div class="col-md-4"><div class="card h-100 border-0 shadow-sm rounded-3 p-3"><div class="d-flex align-items-center mb-2"><h5 class="card-title mb-0 fw-bold"><a href="https://github.com/blagojevicboban/moodle-filter_codelab" target="_blank" class="text-decoration-none">filter_codelab</a></h5></div><p class="card-text text-muted small mb-0">Turns examples into interactive editors readers can run: live stdin input, Step debugger with breakpoints, call stack and trace table, SQL queries.</p></div></div>'
         . '<div class="col-md-4"><div class="card h-100 border-0 shadow-sm rounded-3 p-3"><div class="d-flex align-items-center mb-2"><h5 class="card-title mb-0 fw-bold"><a href="https://github.com/blagojevicboban/moodle-qtype_codelab" target="_blank" class="text-decoration-none">qtype_codelab</a></h5></div><p class="card-text text-muted small mb-0">Programming questions graded automatically against test cases: test weights, hidden tests, number and regex comparisons, penalties, SQL evaluation.</p></div></div>'
         . '</div>';
 
