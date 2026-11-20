@@ -88,8 +88,8 @@ Sačuvaj. Oba polja stanja moraju biti zelena: Jobe sa jezicima i runner sa c, c
 ## 8. Provera
 
 - Otvori https://codelab.tsp.edu.rs i proveri da li postoje oba dugmeta:
-  - **🚀 Open Demo Course (English)**
-  - **🇷🇸 Demo kurs (srpski)**
+  - **Open Demo Course (English)**
+  - **Demo kurs (srpski)**
 - Proveri engleski kurs:
   - Lekcija o operatoru dodele na engleskom (C);
   - Primeri za jezike;

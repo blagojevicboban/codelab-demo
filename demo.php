@@ -157,15 +157,15 @@ function demo_settings(): void {
     $auth_instructions = <<<'HTML'
 <div class="card border-0 shadow-lg rounded-4 p-4 text-start text-white" style="background: rgba(15, 23, 42, 0.92) !important; backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.18) !important; max-width: 440px; margin: 0 auto;">
     <div class="d-flex align-items-center gap-2 mb-3">
-        <span class="fs-4">⚡</span>
+        
         <h5 class="fw-bold mb-0 text-white">Instant Demo Access</h5>
     </div>
     <div class="p-3 rounded-3 mb-2" style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.12);">
-        <div class="fw-bold mb-1" style="color: #38bdf8;">🧑‍🏫 Teacher: <code>teacher</code></div>
+        <div class="fw-bold mb-1" style="color: #38bdf8;">Teacher: <code>teacher</code></div>
         <div class="small" style="color: rgba(255, 255, 255, 0.9); line-height: 1.4;">Insert &amp; edit runnable Monaco code in TinyMCE (9 languages), configure test cases and auto-grading.</div>
     </div>
     <div class="p-3 rounded-3 mb-3" style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.12);">
-        <div class="fw-bold mb-1" style="color: #fbbf24;">🎓 Student: <code>student</code></div>
+        <div class="fw-bold mb-1" style="color: #fbbf24;">Student: <code>student</code></div>
         <div class="small" style="color: rgba(255, 255, 255, 0.9); line-height: 1.4;">Run 8 languages + SQL with live stdin, step through C &amp; Python with debugger, solve coding quizzes.</div>
     </div>
     <div class="d-flex align-items-center justify-content-between pt-2 border-top border-white border-opacity-25 small mb-2">
@@ -286,7 +286,7 @@ function demo_guide_html_en(): string {
     return <<<'HTML'
 <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
     <div class="d-flex align-items-center mb-3">
-        <span class="fs-2 me-3">🚀</span>
+        
         <div>
             <h3 class="fw-bold mb-0 text-primary">CodeLab Runner &amp; Admin Architecture Guide</h3>
             <p class="text-muted mb-0">Interactive multi-language code execution, sandbox isolation, and Moodle integration</p>
@@ -352,7 +352,7 @@ sudo systemctl daemon-reload &amp;&amp; sudo systemctl enable --now codelab-runn
             </ul>
         </li>
         <li><strong>Teacher Selection:</strong> When inserting or editing snippets in TinyMCE, pick the desired theme in the modal dialog dropdown. It saves as <code>data-theme="..."</code>.</li>
-        <li><strong>Student Dynamic Toggle (🌓):</strong> Students can click the theme toggle button in the CodeLab card toolbar to switch between light, dark, and high-contrast themes on the fly without losing their editor state or code.</li>
+        <li><strong>Student Dynamic Toggle:</strong> Students can click the theme toggle button in the CodeLab card toolbar to switch between light, dark, and high-contrast themes on the fly without losing their editor state or code.</li>
         <li><strong>Site Default Setting:</strong> Administrators can choose the site-wide default theme in <em>Site administration &gt; Plugins &gt; Text editors &gt; TinyMCE editor &gt; CodeLab</em>.</li>
     </ul>
 </div>
@@ -366,7 +366,7 @@ function demo_guide_html_sr(): string {
     return <<<'HTML'
 <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
     <div class="d-flex align-items-center mb-3">
-        <span class="fs-2 me-3">🚀</span>
+        
         <div>
             <h3 class="fw-bold mb-0 text-success">Vodič za admine i nastavnike: CodeLab Runner</h3>
             <p class="text-muted mb-0">Arhitektura interaktivnog izvršavanja koda, sandbox izolacija i podešavanje Moodle-a</p>
@@ -431,7 +431,7 @@ sudo systemctl daemon-reload &amp;&amp; sudo systemctl enable --now codelab-runn
             </ul>
         </li>
         <li><strong>Izbor nastavnika:</strong> Prilikom unosa koda u TinyMCE editoru, nastavnik u padajućem meniju bira temu. Ona se čuva kao atribut <code>data-theme="..."</code>.</li>
-        <li><strong>Prekidač za učenike (🌓):</strong> Učenici mogu u bilo kom trenutku kliknuti na ikonicu <code>🌓</code> na traci CodeLab kartice kako bi trenutno promenili temu između svetle, tamne i visokog kontrasta, bez gubljenja koda ili stanja izvršavanja.</li>
+        <li><strong>Prekidač za učenike:</strong> Učenici mogu u bilo kom trenutku kliknuti na dugme za temu na traci CodeLab kartice kako bi trenutno promenili temu između svetle, tamne i visokog kontrasta, bez gubljenja koda ili stanja izvršavanja.</li>
         <li><strong>Podrazumevana tema sajta:</strong> Administrator može podesiti podrazumevanu temu za ceo sajt na <em>Administracija sajta &gt; Dodaci &gt; Editori teksta &gt; TinyMCE editor &gt; CodeLab</em>.</li>
     </ul>
 </div>
@@ -599,7 +599,7 @@ function demo_section_banner(int $courseid, int $other_courseid, string $lang): 
         $guide_cm = get_coursemodule_from_instance('page', $guide_page->id, $courseid);
         if ($guide_cm) {
             $guide_url = "{$CFG->wwwroot}/mod/page/view.php?id={$guide_cm->id}";
-            $btn_text = ($lang === 'en') ? '📖 Admin &amp; Teacher Guide: CodeLab Runner →' : '📖 Vodič za admine i nastavnike: CodeLab Runner →';
+            $btn_text = ($lang === 'en') ? 'Admin &amp; Teacher Guide: CodeLab Runner →' : 'Vodič za admine i nastavnike: CodeLab Runner →';
             $guide_btn = '<a href="' . $guide_url . '" class="btn btn-sm btn-warning text-dark rounded-pill px-3 fw-bold shadow-sm" style="backdrop-filter: blur(4px);">' . $btn_text . '</a>';
         }
     }
@@ -609,10 +609,10 @@ function demo_section_banner(int $courseid, int $other_courseid, string $lang): 
             . '<div class="card-body p-4">'
             . '<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">'
             . '<div class="d-flex flex-wrap align-items-center gap-2">'
-            . '<span class="badge bg-white bg-opacity-25 text-white px-3 py-2 rounded-pill fw-normal" style="backdrop-filter: blur(4px);">✨ CodeLab Demo · English</span>'
+            . '<span class="badge bg-white bg-opacity-25 text-white px-3 py-2 rounded-pill fw-normal" style="backdrop-filter: blur(4px);">CodeLab Demo · English</span>'
             . $guide_btn
             . '</div>'
-            . '<a href="' . $other_url . '" class="btn btn-sm btn-outline-light rounded-pill px-3 fw-bold" style="backdrop-filter: blur(4px);">🇷🇸 Prebaci na srpski kurs →</a>'
+            . '<a href="' . $other_url . '" class="btn btn-sm btn-outline-light rounded-pill px-3 fw-bold" style="backdrop-filter: blur(4px);">Prebaci na srpski kurs →</a>'
             . '</div>'
             . '<h2 class="fw-bold text-white mb-2">Welcome to CodeLab for Moodle!</h2>'
             . '<p class="mb-3" style="color: rgba(255,255,255,0.9) !important; font-size: 1.05rem;">Experience runnable code in Moodle powered by the Monaco editor (VS Code). Follow this 4-step tour to test all features:</p>'
@@ -631,10 +631,10 @@ function demo_section_banner(int $courseid, int $other_courseid, string $lang): 
             . '<div class="card-body p-4">'
             . '<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">'
             . '<div class="d-flex flex-wrap align-items-center gap-2">'
-            . '<span class="badge bg-white bg-opacity-25 text-white px-3 py-2 rounded-pill fw-normal" style="backdrop-filter: blur(4px);">✨ CodeLab Demo · Srpski</span>'
+            . '<span class="badge bg-white bg-opacity-25 text-white px-3 py-2 rounded-pill fw-normal" style="backdrop-filter: blur(4px);">CodeLab Demo · Srpski</span>'
             . $guide_btn
             . '</div>'
-            . '<a href="' . $other_url . '" class="btn btn-sm btn-outline-light rounded-pill px-3 fw-bold" style="backdrop-filter: blur(4px);">🌐 Switch to English Course →</a>'
+            . '<a href="' . $other_url . '" class="btn btn-sm btn-outline-light rounded-pill px-3 fw-bold" style="backdrop-filter: blur(4px);">Switch to English Course →</a>'
             . '</div>'
             . '<h2 class="fw-bold text-white mb-2">Dobrodošli u CodeLab za Moodle!</h2>'
             . '<p class="mb-3" style="color: rgba(255,255,255,0.9) !important; font-size: 1.05rem;">Pokrećite i menjajte kod u lekcijama u VS Code Monaco editoru. Isprobajte sve funkcionalnosti u 4 koraka:</p>'
@@ -735,7 +735,7 @@ function demo_frontpage(int $en_id, int $sr_id): void {
         . '<p>Open the demo courses as a guest, or log in with one of these accounts (password <strong>' . DEMO_PASSWORD . '</strong>):</p><ul>'
         . '<li><strong>teacher</strong>: edit the pages and the quiz questions, insert code examples</li>'
         . '<li><strong>student</strong>: run every language, step through C and Python, take the quizzes</li></ul>'
-        . '<p>Courses available: <a href="' . $en_url . '"><strong>CodeLab: demo (English)</strong></a> · <a href="' . $sr_url . '"><strong>CodeLab: demo (srpski)</strong></a> · <a href="' . $en_guide_url . '"><strong>📖 Administrator &amp; Teacher Guide</strong></a></p>'
+        . '<p>Courses available: <a href="' . $en_url . '"><strong>CodeLab: demo (English)</strong></a> · <a href="' . $sr_url . '"><strong>CodeLab: demo (srpski)</strong></a> · <a href="' . $en_guide_url . '"><strong>Administrator &amp; Teacher Guide</strong></a></p>'
         . '<p>Everything you change is reset every night. Serbian (Latin and Cyrillic) is also in the language menu.</p>';
     $DB->update_record('course', (object) [
         'id' => SITEID,
@@ -750,10 +750,10 @@ function demo_frontpage(int $en_id, int $sr_id): void {
         . "# Click 'Run' below to execute this code live in your browser:\n"
         . "def demo_preview():\n"
         . "    languages = ['Python', 'C', 'C++', 'Java', 'C#', 'JS', 'Pascal', 'PHP', 'SQL']\n"
-        . "    print(f'🚀 CodeLab powers runnable code across {len(languages)} languages!')\n"
+        . "    print(f'CodeLab powers runnable code across {len(languages)} languages!')\n"
         . "    for idx, lang in enumerate(languages, 1):\n"
         . "        print(f'   {idx}. {lang}')\n"
-        . "    print('✨ Ready to explore? Pick a demo course below!')\n\n"
+        . "    print('Ready to explore? Pick a demo course below!')\n\n"
         . "demo_preview()\n",
         ENT_QUOTES
     );
@@ -763,18 +763,18 @@ function demo_frontpage(int $en_id, int $sr_id): void {
         . '<div class="row align-items-center">'
         . '<div class="col-lg-7">'
         . '<div class="d-flex flex-wrap gap-2 mb-3">'
-        . '<span class="badge bg-white bg-opacity-25 text-white px-3 py-2 rounded-pill fw-normal" style="backdrop-filter: blur(4px);">✨ Official Demo for CodeLab Plugins</span>'
-        . '<span class="badge bg-info bg-opacity-25 text-white px-3 py-2 rounded-pill fw-normal">⚡ 8 Languages + SQL</span>'
-        . '<span class="badge bg-warning bg-opacity-25 text-white px-3 py-2 rounded-pill fw-normal">🐞 Line-by-Line Debugger</span>'
-        . '<span class="badge bg-success bg-opacity-25 text-white px-3 py-2 rounded-pill fw-normal">🎨 VS Code Themes (Light/Dark/HC)</span>'
-        . '<a href="' . $en_guide_url . '" class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold text-decoration-none shadow-sm">📖 Admin &amp; Runner Guide →</a>'
+        . '<span class="badge bg-white bg-opacity-25 text-white px-3 py-2 rounded-pill fw-normal" style="backdrop-filter: blur(4px);">Official Demo for CodeLab Plugins</span>'
+        . '<span class="badge bg-info bg-opacity-25 text-white px-3 py-2 rounded-pill fw-normal">8 Languages + SQL</span>'
+        . '<span class="badge bg-warning bg-opacity-25 text-white px-3 py-2 rounded-pill fw-normal">Line-by-Line Debugger</span>'
+        . '<span class="badge bg-success bg-opacity-25 text-white px-3 py-2 rounded-pill fw-normal">VS Code Themes (Light/Dark/HC)</span>'
+        . '<a href="' . $en_guide_url . '" class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold text-decoration-none shadow-sm">Admin &amp; Runner Guide →</a>'
         . '</div>'
         . '<h1 class="display-6 fw-bold text-white mb-3">Runnable Code in Moodle with the VS Code Editor</h1>'
         . '<p class="lead mb-4" style="color: rgba(255,255,255,0.92) !important; font-size: 1.15rem;">Write examples in C, C++, Python, Java, C#, JavaScript, Pascal, PHP and SQL. Choose from VS Code themes (Light, Dark, High Contrast), edit and run with live stdin, step through line-by-line with a debugger, and be graded automatically in quizzes.</p>'
         . '<div class="d-flex flex-wrap gap-3 mb-2">'
-        . '<a href="' . $en_url . '" class="btn btn-light btn-lg px-4 fw-bold shadow-sm" style="border-radius: 12px; color: #1e3a8a;">🇬🇧 Open English Demo</a>'
-        . '<a href="' . $sr_url . '" class="btn btn-outline-light btn-lg px-4 fw-bold shadow-sm" style="border-radius: 12px; border-width: 2px;">🇷🇸 Otvori kurs na srpskom</a>'
-        . '<a href="' . $en_guide_url . '" class="btn btn-warning text-dark btn-lg px-4 fw-bold shadow-sm" style="border-radius: 12px;">📖 Admin &amp; Teacher Guide</a>'
+        . '<a href="' . $en_url . '" class="btn btn-light btn-lg px-4 fw-bold shadow-sm" style="border-radius: 12px; color: #1e3a8a;">Open English Demo</a>'
+        . '<a href="' . $sr_url . '" class="btn btn-outline-light btn-lg px-4 fw-bold shadow-sm" style="border-radius: 12px; border-width: 2px;">Otvori kurs na srpskom</a>'
+        . '<a href="' . $en_guide_url . '" class="btn btn-warning text-dark btn-lg px-4 fw-bold shadow-sm" style="border-radius: 12px;">Admin &amp; Teacher Guide</a>'
         . '</div>'
         . '</div>'
         . '<div class="col-lg-5 mt-4 mt-lg-0">'
@@ -783,7 +783,7 @@ function demo_frontpage(int $en_id, int $sr_id): void {
         . '<div class="small fw-bold text-white"><span class="me-2">▶️</span>Try it live now (no login required):</div>'
         . '<span class="badge bg-success bg-opacity-50 text-white font-monospace small">VS Code Dark Theme</span>'
         . '</div>'
-        . '<pre class="codelab codelab-lang-python codelab-run" data-theme="vs-dark" style="margin:0; font-size:13px; max-height:220px;">' . $live_code . '</pre>'
+        . '<pre class="codelab codelab-lang-python codelab-run codelab-theme-vs-dark" style="margin:0; font-size:13px; max-height:220px;">' . $live_code . '</pre>'
         . '</div>'
         . '</div>'
         . '</div>'
@@ -793,35 +793,35 @@ function demo_frontpage(int $en_id, int $sr_id): void {
         . '<div class="col-md-6">'
         . '<div class="card h-100 border-0 shadow-sm p-4 demo-course-card" style="background:#ffffff; border-left: 5px solid #2563eb !important;">'
         . '<div class="d-flex justify-content-between align-items-start mb-2">'
-        . '<h4 class="fw-bold mb-0 text-primary">🇬🇧 CodeLab: Demo (English)</h4>'
+        . '<h4 class="fw-bold mb-0 text-primary">CodeLab: Demo (English)</h4>'
         . '<span class="badge bg-primary bg-opacity-10 text-primary px-3 py-1 rounded-pill">CODELAB-DEMO</span>'
         . '</div>'
         . '<p class="text-muted mb-3">Explore programming lessons in C, C#, Python and SQL. Includes interactive assignments, the step-by-step factorial debugger, and autograded quizzes.</p>'
-        . '<a href="' . $en_url . '" class="btn btn-primary fw-bold px-4 rounded-3 align-self-start">🚀 Enter English Course →</a>'
+        . '<a href="' . $en_url . '" class="btn btn-primary fw-bold px-4 rounded-3 align-self-start">Enter English Course →</a>'
         . '</div></div>'
         . '<div class="col-md-6">'
         . '<div class="card h-100 border-0 shadow-sm p-4 demo-course-card" style="background:#ffffff; border-left: 5px solid #059669 !important;">'
         . '<div class="d-flex justify-content-between align-items-start mb-2">'
-        . '<h4 class="fw-bold mb-0 text-success">🇷🇸 CodeLab: Demo (srpski)</h4>'
+        . '<h4 class="fw-bold mb-0 text-success">CodeLab: Demo (srpski)</h4>'
         . '<span class="badge bg-success bg-opacity-10 text-success px-3 py-1 rounded-pill">CODELAB-DEMO-SR</span>'
         . '</div>'
         . '<p class="text-muted mb-3">Kompletne lekcije i zadaci iz C i C# jezika, MySQL biblioteka baza, debager za C i Python red po red, i automatski ocenjivani kvizovi sa testovima.</p>'
-        . '<a href="' . $sr_url . '" class="btn btn-success fw-bold px-4 rounded-3 align-self-start">🇷🇸 Otvori kurs na srpskom →</a>'
+        . '<a href="' . $sr_url . '" class="btn btn-success fw-bold px-4 rounded-3 align-self-start">Otvori kurs na srpskom →</a>'
         . '</div></div>'
         . '</div>'
         // Test Accounts Strip
         . '<div class="card border-0 shadow-sm rounded-4 mb-4 p-3 bg-light">'
         . '<div class="row g-2 align-items-center text-center text-md-start">'
-        . '<div class="col-md-3 fw-bold text-dark"><span class="fs-5 me-2">⚡</span>Instant Demo Access:</div>'
-        . '<div class="col-md-3"><div class="p-2 px-3 bg-white rounded-3 shadow-sm border small"><strong>👤 Guest:</strong> Run &amp; step through all code examples</div></div>'
-        . '<div class="col-md-3"><div class="p-2 px-3 bg-white rounded-3 shadow-sm border small"><strong>🎓 Student:</strong> <code>student</code> / <code>Demo-2026</code></div></div>'
-        . '<div class="col-md-3"><div class="p-2 px-3 bg-white rounded-3 shadow-sm border small"><strong>🧑‍🏫 Teacher:</strong> <code>teacher</code> / <code>Demo-2026</code></div></div>'
+        . '<div class="col-md-3 fw-bold text-dark">Instant Demo Access:</div>'
+        . '<div class="col-md-3"><div class="p-2 px-3 bg-white rounded-3 shadow-sm border small"><strong>Guest:</strong> Run &amp; step through all code examples</div></div>'
+        . '<div class="col-md-3"><div class="p-2 px-3 bg-white rounded-3 shadow-sm border small"><strong>Student:</strong> <code>student</code> / <code>Demo-2026</code></div></div>'
+        . '<div class="col-md-3"><div class="p-2 px-3 bg-white rounded-3 shadow-sm border small"><strong>Teacher:</strong> <code>teacher</code> / <code>Demo-2026</code></div></div>'
         . '</div></div>'
         // 3 Plugin Cards
         . '<div class="row g-3 mb-4">'
-        . '<div class="col-md-4"><div class="card h-100 border-0 shadow-sm rounded-3 p-3"><div class="d-flex align-items-center mb-2"><span class="fs-4 me-2">⌨️</span><h5 class="card-title mb-0 fw-bold"><a href="https://github.com/blagojevicboban/moodle-tiny_codelab" target="_blank" class="text-decoration-none">tiny_codelab</a></h5></div><p class="card-text text-muted small mb-0">Insert runnable examples in any Moodle text with the Monaco editor of VS Code: syntax highlighting, auto-complete, Run on Jobe or Python in browser.</p></div></div>'
+        . '<div class="col-md-4"><div class="card h-100 border-0 shadow-sm rounded-3 p-3"><div class="d-flex align-items-center mb-2"><h5 class="card-title mb-0 fw-bold"><a href="https://github.com/blagojevicboban/moodle-tiny_codelab" target="_blank" class="text-decoration-none">tiny_codelab</a></h5></div><p class="card-text text-muted small mb-0">Insert runnable examples in any Moodle text with the Monaco editor of VS Code: syntax highlighting, auto-complete, Run on Jobe or Python in browser.</p></div></div>'
         . '<div class="col-md-4"><div class="card h-100 border-0 shadow-sm rounded-3 p-3"><div class="d-flex align-items-center mb-2"><span class="fs-4 me-2">▶️</span><h5 class="card-title mb-0 fw-bold"><a href="https://github.com/blagojevicboban/moodle-filter_codelab" target="_blank" class="text-decoration-none">filter_codelab</a></h5></div><p class="card-text text-muted small mb-0">Turns examples into interactive editors readers can run: live stdin input, Step debugger with breakpoints, call stack and trace table, SQL queries.</p></div></div>'
-        . '<div class="col-md-4"><div class="card h-100 border-0 shadow-sm rounded-3 p-3"><div class="d-flex align-items-center mb-2"><span class="fs-4 me-2">📋</span><h5 class="card-title mb-0 fw-bold"><a href="https://github.com/blagojevicboban/moodle-qtype_codelab" target="_blank" class="text-decoration-none">qtype_codelab</a></h5></div><p class="card-text text-muted small mb-0">Programming questions graded automatically against test cases: test weights, hidden tests, number and regex comparisons, penalties, SQL evaluation.</p></div></div>'
+        . '<div class="col-md-4"><div class="card h-100 border-0 shadow-sm rounded-3 p-3"><div class="d-flex align-items-center mb-2"><h5 class="card-title mb-0 fw-bold"><a href="https://github.com/blagojevicboban/moodle-qtype_codelab" target="_blank" class="text-decoration-none">qtype_codelab</a></h5></div><p class="card-text text-muted small mb-0">Programming questions graded automatically against test cases: test weights, hidden tests, number and regex comparisons, penalties, SQL evaluation.</p></div></div>'
         . '</div>';
 
     $DB->set_field('course_sections', 'summary', $hero, ['course' => SITEID, 'section' => 1]);
