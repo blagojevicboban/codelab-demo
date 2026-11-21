@@ -1,9 +1,9 @@
 # CodeLab Demo Courses (codelab.tsp.edu.rs)
 
 Public demo repository for the CodeLab suite of Moodle plugins:
-- [tiny_codelab](https://github.com/blagojevicboban/moodle-tiny_codelab): Visual code editor in TinyMCE (VS Code Monaco editor).
-- [filter_codelab](https://github.com/blagojevicboban/moodle-filter_codelab): Code filter that turns static code blocks into runnable editors, step-by-step debuggers, and SQL sandboxes.
-- [qtype_codelab](https://github.com/blagojevicboban/moodle-qtype_codelab): Automatically graded programming questions for Moodle quizzes.
+- [tiny_codelab](https://github.com/blagojevicboban/moodle-tiny_codelab): Visual code editor in TinyMCE (VS Code Monaco editor). Marketplace: https://marketplace.moodle.com/plugins/tiny_codelab
+- [filter_codelab](https://github.com/blagojevicboban/moodle-filter_codelab): Code filter that turns static code blocks into runnable editors, step-by-step debuggers, and SQL sandboxes. Marketplace: https://marketplace.moodle.com/plugins/filter_codelab
+- [qtype_codelab](https://github.com/blagojevicboban/moodle-qtype_codelab): Automatically graded programming questions for Moodle quizzes. Marketplace: https://marketplace.moodle.com/plugins/qtype_codelab
 
 ## Contents
 
