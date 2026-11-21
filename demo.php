@@ -134,6 +134,9 @@ function demo_settings(): void {
         set_config($name, $value);
     }
     filter_set_global_state('codelab', TEXTFILTER_ON);
+    // The video on the front page is a plain YouTube link that the media filter turns into a player.
+    filter_set_global_state('mediaplugin', TEXTFILTER_ON);
+    \core\plugininfo\media::enable_plugin('youtube', 1);
     if (file_exists($CFG->dirroot . '/filter/algorithm/version.php')) {
         filter_set_global_state('algorithm', TEXTFILTER_ON);
     }
@@ -788,8 +791,16 @@ function demo_frontpage(int $en_id, int $sr_id): void {
         . '</div>'
         . '</div>'
         . '</div></div>'
+        // Video tour (the media filter turns the link into a YouTube player).
+        . '<div class="card border-0 shadow-sm rounded-4 mb-4 p-3 p-md-4">'
+        . '<h4 class="fw-bold mb-1">Video tour: CodeLab for Moodle</h4>'
+        . '<p class="text-muted mb-3">A full walkthrough: examples in the code editor, Run on Jobe or the runner, the debugger, flowcharts, the hosted runner and graded quiz questions.</p>'
+        . '<div class="demo-video" style="max-width: 960px;">'
+        . '<a href="https://youtu.be/2pegPwTl8eM#d=960x540">CodeLab for Moodle: full walkthrough (Jobe, hosted runner, flowchart and auto-grading)</a>'
+        . '</div>'
+        . '</div>'
         // Dual-Language Cards
-        . '<div class="row g-3 mb-4">'
+        . '<div class="row g-3 mb-4 mx-0">'
         . '<div class="col-md-6">'
         . '<div class="card h-100 border-0 shadow-sm p-4 demo-course-card" style="background:#ffffff; border-left: 5px solid #2563eb !important;">'
         . '<div class="d-flex justify-content-between align-items-start mb-2">'
@@ -811,17 +822,17 @@ function demo_frontpage(int $en_id, int $sr_id): void {
         . '</div>'
         // Test Accounts Strip
         . '<div class="card border-0 shadow-sm rounded-4 mb-4 p-3 bg-light">'
-        . '<div class="row g-2 align-items-center text-center text-md-start">'
+        . '<div class="row g-2 align-items-center text-center text-md-start mx-0">'
         . '<div class="col-md-3 fw-bold text-dark">Instant Demo Access:</div>'
         . '<div class="col-md-3"><div class="p-2 px-3 bg-white rounded-3 shadow-sm border small"><strong>Guest:</strong> Run &amp; step through all code examples</div></div>'
         . '<div class="col-md-3"><div class="p-2 px-3 bg-white rounded-3 shadow-sm border small"><strong>Student:</strong> <code>student</code> / <code>Demo-2026</code></div></div>'
         . '<div class="col-md-3"><div class="p-2 px-3 bg-white rounded-3 shadow-sm border small"><strong>Teacher:</strong> <code>teacher</code> / <code>Demo-2026</code></div></div>'
         . '</div></div>'
         // 3 Plugin Cards
-        . '<div class="row g-3 mb-4">'
-        . '<div class="col-md-4"><div class="card h-100 border-0 shadow-sm rounded-3 p-3"><div class="d-flex align-items-center mb-2"><h5 class="card-title mb-0 fw-bold"><a href="https://github.com/blagojevicboban/moodle-tiny_codelab" target="_blank" class="text-decoration-none">tiny_codelab</a></h5></div><p class="card-text text-muted small mb-0">Insert runnable examples in any Moodle text with the Monaco editor of VS Code: syntax highlighting, auto-complete, Run on Jobe or Python in browser.</p><p class="small mb-0 mt-2"><a href="https://marketplace.moodle.com/plugins/tiny_codelab" target="_blank">Moodle Marketplace</a> &middot; <a href="https://github.com/blagojevicboban/moodle-tiny_codelab" target="_blank">GitHub</a></p></div></div>'
-        . '<div class="col-md-4"><div class="card h-100 border-0 shadow-sm rounded-3 p-3"><div class="d-flex align-items-center mb-2"><h5 class="card-title mb-0 fw-bold"><a href="https://github.com/blagojevicboban/moodle-filter_codelab" target="_blank" class="text-decoration-none">filter_codelab</a></h5></div><p class="card-text text-muted small mb-0">Turns examples into interactive editors readers can run: live stdin input, Step debugger with breakpoints, call stack and trace table, SQL queries.</p><p class="small mb-0 mt-2"><a href="https://marketplace.moodle.com/plugins/filter_codelab" target="_blank">Moodle Marketplace</a> &middot; <a href="https://github.com/blagojevicboban/moodle-filter_codelab" target="_blank">GitHub</a></p></div></div>'
-        . '<div class="col-md-4"><div class="card h-100 border-0 shadow-sm rounded-3 p-3"><div class="d-flex align-items-center mb-2"><h5 class="card-title mb-0 fw-bold"><a href="https://github.com/blagojevicboban/moodle-qtype_codelab" target="_blank" class="text-decoration-none">qtype_codelab</a></h5></div><p class="card-text text-muted small mb-0">Programming questions graded automatically against test cases: test weights, hidden tests, number and regex comparisons, penalties, SQL evaluation.</p><p class="small mb-0 mt-2"><a href="https://marketplace.moodle.com/plugins/qtype_codelab" target="_blank">Moodle Marketplace</a> &middot; <a href="https://github.com/blagojevicboban/moodle-qtype_codelab" target="_blank">GitHub</a></p></div></div>'
+        . '<div class="row g-3 mb-4 mx-0">'
+        . '<div class="col-md-4"><div class="card h-100 border-0 shadow-sm rounded-3 p-3"><div class="d-flex align-items-center mb-2"><h5 class="card-title mb-0 fw-bold"><a href="https://marketplace.moodle.com/plugins/tiny_codelab" target="_blank" class="text-decoration-none">tiny_codelab</a></h5></div><p class="card-text text-muted small mb-0">Insert runnable examples in any Moodle text with the code editor of VS Code: typing help, tooltips for beginners, zoom, Run on Jobe, the CodeLab runner or Python in the browser.</p><p class="small mb-0 mt-2"><a href="https://marketplace.moodle.com/plugins/tiny_codelab" target="_blank">Moodle Marketplace</a> &middot; <a href="https://github.com/blagojevicboban/moodle-tiny_codelab" target="_blank">GitHub</a></p></div></div>'
+        . '<div class="col-md-4"><div class="card h-100 border-0 shadow-sm rounded-3 p-3"><div class="d-flex align-items-center mb-2"><h5 class="card-title mb-0 fw-bold"><a href="https://marketplace.moodle.com/plugins/filter_codelab" target="_blank" class="text-decoration-none">filter_codelab</a></h5></div><p class="card-text text-muted small mb-0">Turns examples into editors readers can run: input while the program runs, debugger with step back and timeline, memory view, flowcharts, complexity charts and a class view.</p><p class="small mb-0 mt-2"><a href="https://marketplace.moodle.com/plugins/filter_codelab" target="_blank">Moodle Marketplace</a> &middot; <a href="https://github.com/blagojevicboban/moodle-filter_codelab" target="_blank">GitHub</a></p></div></div>'
+        . '<div class="col-md-4"><div class="card h-100 border-0 shadow-sm rounded-3 p-3"><div class="d-flex align-items-center mb-2"><h5 class="card-title mb-0 fw-bold"><a href="https://marketplace.moodle.com/plugins/qtype_codelab" target="_blank" class="text-decoration-none">qtype_codelab</a></h5></div><p class="card-text text-muted small mb-0">Programming questions graded automatically on tests: weights, hidden tests, code before and after, number and regex comparisons, SQL questions and Parsons problems.</p><p class="small mb-0 mt-2"><a href="https://marketplace.moodle.com/plugins/qtype_codelab" target="_blank">Moodle Marketplace</a> &middot; <a href="https://github.com/blagojevicboban/moodle-qtype_codelab" target="_blank">GitHub</a></p></div></div>'
         . '</div>';
 
     $DB->set_field('course_sections', 'summary', $hero, ['course' => SITEID, 'section' => 1]);
