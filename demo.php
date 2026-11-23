@@ -145,7 +145,11 @@ function demo_settings(): void {
     }
     set_config('jobeserver', 'https://jobe.tsp.edu.rs', 'tiny_codelab');
     set_config('runnerurl', 'wss://runner.tsp.edu.rs', 'tiny_codelab');
+    set_config('backend', 'runner', 'tiny_codelab');
     set_config('browserpython', 1, 'tiny_codelab');
+    if (class_exists('\tiny_codelab\local\languages')) {
+        set_config('languages', implode(',', \tiny_codelab\local\languages::all()), 'tiny_codelab');
+    }
 
     // Ensure none of the 3 subplugins are disabled in TinyMCE
     $disabled = get_config('editor_tiny', 'disabledsubplugins') ?: '';
@@ -165,11 +169,11 @@ function demo_settings(): void {
     </div>
     <div class="p-3 rounded-3 mb-2" style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.12);">
         <div class="fw-bold mb-1" style="color: #38bdf8;">Teacher: <code>teacher</code></div>
-        <div class="small" style="color: rgba(255, 255, 255, 0.9); line-height: 1.4;">Insert &amp; edit runnable Monaco code in TinyMCE (9 languages), configure test cases and auto-grading.</div>
+        <div class="small" style="color: rgba(255, 255, 255, 0.9); line-height: 1.4;">Insert &amp; edit runnable Monaco code in TinyMCE (27 languages), configure test cases, unit tests and auto-grading.</div>
     </div>
     <div class="p-3 rounded-3 mb-3" style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.12);">
         <div class="fw-bold mb-1" style="color: #fbbf24;">Student: <code>student</code></div>
-        <div class="small" style="color: rgba(255, 255, 255, 0.9); line-height: 1.4;">Run 8 languages + SQL with live stdin, step through C &amp; Python with debugger, solve coding quizzes.</div>
+        <div class="small" style="color: rgba(255, 255, 255, 0.9); line-height: 1.4;">Run 27 languages (including HTML/CSS/JS &amp; SQL) with live stdin, step through C &amp; Python with debugger, solve coding quizzes.</div>
     </div>
     <div class="d-flex align-items-center justify-content-between pt-2 border-top border-white border-opacity-25 small mb-2">
         <span style="color: rgba(255, 255, 255, 0.9);">Password:</span>
