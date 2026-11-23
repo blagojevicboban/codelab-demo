@@ -292,75 +292,75 @@ function demo_ensure_admin_guide(int $courseid, string $lang): void {
 function demo_guide_html_en(): string {
     return <<<'HTML'
 <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
-    <div class="d-flex align-items-center mb-3">
-        
-        <div>
-            <h3 class="fw-bold mb-0 text-primary">CodeLab Runner &amp; Admin Architecture Guide</h3>
-            <p class="text-muted mb-0">Interactive multi-language code execution, sandbox isolation, and Moodle integration</p>
-        </div>
+    <div class="mb-3">
+        <h3 class="fw-bold mb-0 text-primary">CodeLab Runner &amp; Admin Guide</h3>
+        <p class="text-muted mb-0">Where programs run, how they are isolated, and how to set up the servers and Moodle</p>
     </div>
     <hr>
-    
-    <h4 class="fw-bold mt-3 mb-2">1. System Overview</h4>
-    <p>CodeLab for Moodle provides students with runnable code in <strong>C, C++, Python, Java, C#, JavaScript, Pascal, PHP and SQL</strong> directly inside lesson pages, forum posts, and quiz questions.</p>
-    <ul>
-        <li><strong>Python &amp; JavaScript:</strong> Execute instantly in the browser client-side using WebAssembly (Pyodide). Zero server load and instant response.</li>
-        <li><strong>Compiled Languages (C, C++, Java, C#) &amp; SQL:</strong> Run interactively on the <strong>CodeLab Runner</strong> server over secure WebSockets (<code>wss://runner.tsp.edu.rs</code>) with live terminal stdin and step-by-step GDB debugging.</li>
-        <li><strong>Automated Quiz Grading:</strong> Uses the backend <strong>Jobe server</strong> (<code>https://jobe.tsp.edu.rs</code>) or the Runner's <code>POST /run</code> HMAC API to verify programs against test suites.</li>
-    </ul>
 
-    <h4 class="fw-bold mt-4 mb-2">2. Architecture &amp; Security Isolation</h4>
+    <h4 class="fw-bold mt-3 mb-2">1. Where programs run</h4>
+    <p>CodeLab examples and questions support <strong>27 languages</strong>. Each one runs in one of three places:</p>
+    <ul>
+        <li><strong>In the browser:</strong> Python (Pyodide, with <code>input()</code>, Step and turtle graphics) and HTML / CSS / JS (a sandboxed preview frame with a console). No server load; this also works for guests.</li>
+        <li><strong>On the CodeLab runner:</strong> C, C++, Java, C#, Python, JavaScript, TypeScript, Pascal, PHP, Bash, Go, Rust, R, Ruby, Lua, Kotlin, Perl, Octave, Julia, Scheme, Dart, Scala, Elixir, Swift, Haskell and SQL (MariaDB). Runs are interactive: the program asks for input while it runs, as in a terminal. C and C++ also have Step (the GDB debugger, Memory view) and Safe mode (AddressSanitizer and UndefinedBehaviorSanitizer).</li>
+        <li><strong>On Jobe:</strong> C, C++, Java, C#, Python, JavaScript, Pascal and PHP, with the whole input given before the run.</li>
+    </ul>
+    <p><strong>Grading</strong> of quiz questions is always done on a server, never in the browser: on Jobe, or on the runner through its signed <code>POST /run</code> API. The runner grades like Jobe (the same statuses for compile errors, runtime errors and time limits), so a question gives the same grade on both.</p>
+
+    <h4 class="fw-bold mt-4 mb-2">2. How a run is protected</h4>
     <div class="p-3 bg-light rounded-3 mb-3 border">
         <ol class="mb-0">
-            <li><strong>HMAC Authentication:</strong> When a student clicks <em>Run</em>, Moodle generates a one-time token signed with <code>CODELAB_SECRET</code> (valid for 60 seconds).</li>
-            <li><strong>WebSocket Streaming:</strong> The browser opens <code>wss://&lt;runner&gt;/session?token=...</code> to stream source code and standard input/output interactively.</li>
-            <li><strong>Bubblewrap Sandbox (<code>bwrap</code>):</strong> The program executes inside an unprivileged Linux namespace:
+            <li><strong>Signed token:</strong> when a reader clicks <em>Run</em>, Moodle signs a short-lived token with the shared secret (<code>CODELAB_SECRET</code>). It carries only the numeric user id.</li>
+            <li><strong>WebSocket session:</strong> the browser opens <code>wss://&lt;runner&gt;/session</code> with the token and streams the code, the input and the output.</li>
+            <li><strong>Bubblewrap sandbox (<code>bwrap</code>):</strong> every compilation and run is in its own Linux namespace:
                 <ul>
-                    <li>No network access (<code>--unshare-net</code>).</li>
-                    <li>Read-only filesystem mount.</li>
-                    <li>Resource limits enforced via <code>prlimit</code> (maximum CPU time, 128 MB RAM, file size cap).</li>
+                    <li>no network;</li>
+                    <li>only <code>/usr</code> and <code>/etc</code> of the server, read-only, so compilers must be installed under <code>/usr</code>;</li>
+                    <li>a private working folder and a small temporary folder;</li>
+                    <li>limits with <code>prlimit</code>: CPU time, memory (the JVM, Mono and Node.js get a heap limit instead), file size and output size.</li>
                 </ul>
             </li>
-            <li><strong>SQL Sandbox (MariaDB):</strong> Each SQL run provisions an ephemeral database and user (<code>cl_...</code>) with strict timeout limits (<code>MAX_STATEMENT_TIME=5s</code>) and cleans up immediately upon session completion.</li>
+            <li><strong>SQL:</strong> each run gets its own temporary MariaDB database and user (<code>cl_...</code>), with a 5 second limit per statement; both are dropped at the end.</li>
+            <li><strong>Moodle side:</strong> a rate limit per user and a size limit for code and input protect the servers.</li>
         </ol>
     </div>
 
-    <h4 class="fw-bold mt-4 mb-2">3. Server Setup for Administrators</h4>
-    <p>The runner is a lightweight Node.js service designed to run on Ubuntu 22.04/24.04 LTS:</p>
-    <pre class="bg-dark text-light p-3 rounded-3" style="font-size: 13px;"><code># 1. Install prerequisites
-sudo apt-get install bubblewrap build-essential openjdk-21-jdk-headless mono-mcs gdb mariadb-server
+    <h4 class="fw-bold mt-4 mb-2">3. Setting up your own runner</h4>
+    <p>The runner (open source, <a href="https://github.com/blagojevicboban/codelab-runner">github.com/blagojevicboban/codelab-runner</a>) is a small Node.js service for Ubuntu 24.04:</p>
+    <pre class="bg-dark text-light p-3 rounded-3" style="font-size: 13px;"><code># 1. The base: sandbox, C/C++, Java, C#, debugger, SQL, Python, Node.js, Pascal, PHP
+sudo apt-get install bubblewrap build-essential gdb openjdk-21-jdk-headless mono-mcs mariadb-server \
+    python3 nodejs fp-compiler php-cli
 
-# 2. Configure systemd service &amp; environment
+# 2. Optional languages from Ubuntu (each is offered only when installed)
+sudo apt-get install golang-go rustc r-base-core ruby lua5.4 perl octave guile-3.0 elixir ghc kotlin scala
+# Julia, Dart and Swift come from their own downloads, installed under /usr
+
+# 3. Service and settings
 sudo cp deploy/codelab-runner.service /etc/systemd/system/
 sudo cp deploy/codelab-runner.env.example /etc/codelab-runner.env
-# Edit /etc/codelab-runner.env: set CODELAB_SECRET, CODELAB_ORIGINS, MariaDB password
+# Edit /etc/codelab-runner.env: CODELAB_SECRET, CODELAB_ORIGINS, MariaDB password
+sudo systemctl daemon-reload &amp;&amp; sudo systemctl enable --now codelab-runner
 
-# 3. Reload and start
-sudo systemctl daemon-reload &amp;&amp; sudo systemctl enable --now codelab-runner</code></pre>
+# 4. Check: the languages the server offers
+curl -s http://127.0.0.1:8090/health</code></pre>
 
-    <h4 class="fw-bold mt-4 mb-2">4. Moodle Plugin Configuration</h4>
-    <p>Navigate to <em>Site administration &gt; Plugins &gt; Text editors &gt; TinyMCE editor &gt; CodeLab</em>:</p>
+    <h4 class="fw-bold mt-4 mb-2">4. Moodle settings</h4>
+    <p><em>Site administration &gt; Plugins &gt; Text editors &gt; TinyMCE editor &gt; CodeLab</em>:</p>
     <ul>
-        <li><strong>Address of the interactive server:</strong> <code>wss://runner.tsp.edu.rs</code></li>
-        <li><strong>Secret of the interactive server:</strong> Matching <code>CODELAB_SECRET</code></li>
-        <li><strong>Address of the Jobe server:</strong> <code>https://jobe.tsp.edu.rs</code></li>
-        <li><strong>Python in the browser:</strong> Checked (Enabled)</li>
+        <li><strong>Server for running and grading:</strong> Automatic (Jobe when it is set, otherwise the runner), Jobe, or CodeLab runner (no Jobe needed). Interactive runs, Step and SQL always use the runner.</li>
+        <li><strong>Address of the interactive server</strong> (<code>wss://runner.example.org</code>) and <strong>Secret of the interactive server</strong> (the same as <code>CODELAB_SECRET</code>).</li>
+        <li><strong>Jobe server:</strong> for example <code>https://jobe.example.org</code>, or empty to use only the runner.</li>
+        <li><strong>Connection key</strong> (optional): instead of your own servers, a hosted CodeLab runner with all languages. It is a paid plan with a monthly quota of runs, provided by the author of CodeLab (ask at boban.blagojevic@tsp.edu.rs).</li>
+        <li><strong>Python in the browser:</strong> on (Chrome or Edge 137+; other browsers run Python on the server).</li>
+        <li><strong>Languages:</strong> the languages teachers can choose; only those installed on the server run there.</li>
     </ul>
+    <p>The settings page tests Jobe and the runner, shows their versions and measures their speed.</p>
 
-    <h4 class="fw-bold mt-4 mb-2">5. VS Code Themes &amp; Appearance (v1.5.0)</h4>
-    <p>CodeLab v1.5.0 introduces built-in VS Code themes and student toggles:</p>
+    <h4 class="fw-bold mt-4 mb-2">5. The editor for readers</h4>
     <ul>
-        <li><strong>Theme Options:</strong>
-            <ul>
-                <li><code>vs</code> (Visual Studio Light): Clean, high-readability light theme.</li>
-                <li><code>vs-dark</code> (Visual Studio Dark): Classic VS Code dark theme for comfortable low-light coding.</li>
-                <li><code>hc-black</code> (High Contrast Dark): Maximum accessibility and contrast.</li>
-                <li><code>auto</code> (Match Moodle Theme): Dynamically adapts to Moodle's light or dark mode.</li>
-            </ul>
-        </li>
-        <li><strong>Teacher Selection:</strong> When inserting or editing snippets in TinyMCE, pick the desired theme in the modal dialog dropdown. It saves as <code>data-theme="..."</code>.</li>
-        <li><strong>Student Dynamic Toggle:</strong> Students can click the theme toggle button in the CodeLab card toolbar to switch between light, dark, and high-contrast themes on the fly without losing their editor state or code.</li>
-        <li><strong>Site Default Setting:</strong> Administrators can choose the site-wide default theme in <em>Site administration &gt; Plugins &gt; Text editors &gt; TinyMCE editor &gt; CodeLab</em>.</li>
+        <li><strong>Themes:</strong> Visual Studio Light, Visual Studio Dark, High Contrast Dark, or Automatic (follows the site and the system). The administrator sets the default, the teacher can choose one per example, and readers switch with the theme button.</li>
+        <li><strong>Interface in 29 languages</strong>, screen reader and keyboard friendly console, zoom with Ctrl and the mouse wheel, full screen, and input from a phone keyboard.</li>
+        <li><strong>Help:</strong> typing help and program templates for every language, tooltips for beginners, explanations of 40 common compiler errors, and optional AI explanations through Moodle's AI subsystem.</li>
     </ul>
 </div>
 HTML;
@@ -372,74 +372,75 @@ HTML;
 function demo_guide_html_sr(): string {
     return <<<'HTML'
 <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
-    <div class="d-flex align-items-center mb-3">
-        
-        <div>
-            <h3 class="fw-bold mb-0 text-success">Vodič za admine i nastavnike: CodeLab Runner</h3>
-            <p class="text-muted mb-0">Arhitektura interaktivnog izvršavanja koda, sandbox izolacija i podešavanje Moodle-a</p>
-        </div>
+    <div class="mb-3">
+        <h3 class="fw-bold mb-0 text-success">Vodič za admine i nastavnike: CodeLab Runner</h3>
+        <p class="text-muted mb-0">Gde se programi izvršavaju, kako su izolovani i kako se podešavaju serveri i Moodle</p>
     </div>
     <hr>
-    
-    <h4 class="fw-bold mt-3 mb-2">1. Pregled sistema</h4>
-    <p>CodeLab za Moodle omogućava učenicima i nastavnicima pokretanje i debagovanje koda u <strong>C, C++, Python, Java, C#, JavaScript, Pascal, PHP i SQL</strong> jezicima direktno na stranicama lekcija i kvizovima.</p>
-    <ul>
-        <li><strong>Python i JavaScript:</strong> Izvršavaju se lokalno u pregledaču preko WebAssembly tehnologije (Pyodide). Trenutni odziv i nula opterećenja za server.</li>
-        <li><strong>C, C++, Java, C# i SQL:</strong> Izvršavaju se u realnom vremenu na <strong>CodeLab Runner</strong> serveru preko WebSocket protokola (<code>wss://runner.tsp.edu.rs</code>), sa unosom sa tastature tokom rada i debagovanjem liniju po liniju (GDB).</li>
-        <li><strong>Automatsko ocenjivanje u kvizovima:</strong> Koristi Jobe server (<code>https://jobe.tsp.edu.rs</code>) ili Runner API za proveru tačnosti učeničkog rešenja prema zadatim test primerima.</li>
-    </ul>
 
-    <h4 class="fw-bold mt-4 mb-2">2. Bezbednost i sandbox izolacija</h4>
+    <h4 class="fw-bold mt-3 mb-2">1. Gde se programi izvršavaju</h4>
+    <p>CodeLab primeri i pitanja podržavaju <strong>27 jezika</strong>. Svaki se izvršava na jednom od tri mesta:</p>
+    <ul>
+        <li><strong>U pregledaču:</strong> Python (Pyodide, sa <code>input()</code>, korak po korak i kornjača grafikom) i HTML / CSS / JS (izolovan prikaz stranice sa konzolom). Server nije opterećen, a radi i za goste.</li>
+        <li><strong>Na CodeLab runneru:</strong> C, C++, Java, C#, Python, JavaScript, TypeScript, Pascal, PHP, Bash, Go, Rust, R, Ruby, Lua, Kotlin, Perl, Octave, Julia, Scheme, Dart, Scala, Elixir, Swift, Haskell i SQL (MariaDB). Pokretanje je interaktivno: program traži ulaz dok radi, kao u terminalu. C i C++ imaju i izvršavanje korak po korak (GDB debager, prikaz memorije) i Bezbedan režim (AddressSanitizer i UndefinedBehaviorSanitizer).</li>
+        <li><strong>Na Jobe-u:</strong> C, C++, Java, C#, Python, JavaScript, Pascal i PHP, sa celim ulazom zadatim pre pokretanja.</li>
+    </ul>
+    <p><strong>Ocenjivanje</strong> pitanja u kvizu je uvek na serveru, nikad u pregledaču: na Jobe-u ili na runneru preko potpisanog <code>POST /run</code> API-ja. Runner ocenjuje kao Jobe (isti statusi za greške kompajliranja, greške izvršavanja i prekoračeno vreme), pa pitanje dobija istu ocenu na oba.</p>
+
+    <h4 class="fw-bold mt-4 mb-2">2. Kako je pokretanje zaštićeno</h4>
     <div class="p-3 bg-light rounded-3 mb-3 border">
         <ol class="mb-0">
-            <li><strong>Autentifikacija tokenom:</strong> Pri pokretanju koda Moodle izdaje jednokratni HMAC-SHA256 token sa rokom važenja od 60 sekundi.</li>
-            <li><strong>WebSocket strimovanje:</strong> Pregledač komunicira direktno sa Runner servisom, čime se obezbeđuje interaktivni rad konzole.</li>
-            <li><strong>Bubblewrap Sandbox (<code>bwrap</code>):</strong> Program se pokreće u potpuno izolovanom Linux sandboxu:
+            <li><strong>Potpisan token:</strong> kad čitalac klikne <em>Pokreni</em>, Moodle zajedničkom tajnom (<code>CODELAB_SECRET</code>) potpiše kratkotrajni token. On nosi samo brojčani ID korisnika.</li>
+            <li><strong>WebSocket sesija:</strong> pregledač sa tokenom otvara <code>wss://&lt;runner&gt;/session</code> i kroz nju šalje kod i ulaz, a prima izlaz.</li>
+            <li><strong>Bubblewrap sandbox (<code>bwrap</code>):</strong> svako kompajliranje i pokretanje je u svom Linux namespace-u:
                 <ul>
-                    <li>Bez pristupa lokalnoj mreži ili internetu (<code>--unshare-net</code>).</li>
-                    <li>Sistem datoteka montiran samo za čitanje (read-only).</li>
-                    <li>Limitirani resursi: maksimalno vreme procesora, 128 MB radne memorije i limitirana veličina datoteka.</li>
+                    <li>bez mreže;</li>
+                    <li>samo <code>/usr</code> i <code>/etc</code> servera, samo za čitanje, pa kompajleri moraju biti instalirani u <code>/usr</code>;</li>
+                    <li>privatni radni folder i mali privremeni folder;</li>
+                    <li>ograničenja preko <code>prlimit</code>: procesorsko vreme, memorija (JVM, Mono i Node.js umesto toga dobijaju ograničen heap), veličina fajlova i izlaza.</li>
                 </ul>
             </li>
-            <li><strong>SQL bezbedna baza (MariaDB):</strong> Svaka SQL sesija automatski dobija svoju privremenu bazu i korisnika sa vremenskim limitom (5 sekundi), koja se automatski briše po završetku rada.</li>
+            <li><strong>SQL:</strong> svako pokretanje dobija svoju privremenu MariaDB bazu i korisnika (<code>cl_...</code>), sa ograničenjem od 5 sekundi po naredbi; oboje se brišu na kraju.</li>
+            <li><strong>Na strani Moodle-a:</strong> ograničenje broja pokretanja po korisniku i veličine koda i ulaza štiti servere.</li>
         </ol>
     </div>
 
-    <h4 class="fw-bold mt-4 mb-2">3. Podešavanje za administratore</h4>
-    <pre class="bg-dark text-light p-3 rounded-3" style="font-size: 13px;"><code># 1. Instalacija paketa na serveru
-sudo apt-get install bubblewrap build-essential openjdk-21-jdk-headless mono-mcs gdb mariadb-server
+    <h4 class="fw-bold mt-4 mb-2">3. Sopstveni runner</h4>
+    <p>Runner (otvoren kod, <a href="https://github.com/blagojevicboban/codelab-runner">github.com/blagojevicboban/codelab-runner</a>) je mali Node.js servis za Ubuntu 24.04:</p>
+    <pre class="bg-dark text-light p-3 rounded-3" style="font-size: 13px;"><code># 1. Osnova: sandbox, C/C++, Java, C#, debager, SQL, Python, Node.js, Pascal, PHP
+sudo apt-get install bubblewrap build-essential gdb openjdk-21-jdk-headless mono-mcs mariadb-server \
+    python3 nodejs fp-compiler php-cli
 
-# 2. Podešavanje servisa i tajnog ključa
+# 2. Dodatni jezici iz Ubuntu-a (svaki se nudi samo kad je instaliran)
+sudo apt-get install golang-go rustc r-base-core ruby lua5.4 perl octave guile-3.0 elixir ghc kotlin scala
+# Julia, Dart i Swift se preuzimaju sa svojih sajtova i instaliraju u /usr
+
+# 3. Servis i podešavanja
 sudo cp deploy/codelab-runner.service /etc/systemd/system/
 sudo cp deploy/codelab-runner.env.example /etc/codelab-runner.env
-# Uredite /etc/codelab-runner.env (CODELAB_SECRET, CODELAB_ORIGINS)
+# Uredite /etc/codelab-runner.env: CODELAB_SECRET, CODELAB_ORIGINS, lozinka za MariaDB
+sudo systemctl daemon-reload &amp;&amp; sudo systemctl enable --now codelab-runner
 
-# 3. Pokretanje servisa
-sudo systemctl daemon-reload &amp;&amp; sudo systemctl enable --now codelab-runner</code></pre>
+# 4. Provera: jezici koje server nudi
+curl -s http://127.0.0.1:8090/health</code></pre>
 
-    <h4 class="fw-bold mt-4 mb-2">4. Podešavanja u Moodle administraciji</h4>
-    <p>Otvorite <em>Administracija sajta &gt; Dodaci &gt; Editori teksta &gt; TinyMCE editor &gt; CodeLab</em>:</p>
+    <h4 class="fw-bold mt-4 mb-2">4. Podešavanja u Moodle-u</h4>
+    <p><em>Administracija sajta &gt; Dodaci &gt; Editori teksta &gt; TinyMCE editor &gt; CodeLab</em>:</p>
     <ul>
-        <li><strong>Adresa interaktivnog servera:</strong> <code>wss://runner.tsp.edu.rs</code></li>
-        <li><strong>Tajna interaktivnog servera:</strong> Ista šifra kao <code>CODELAB_SECRET</code></li>
-        <li><strong>Adresa Jobe servera:</strong> <code>https://jobe.tsp.edu.rs</code></li>
-        <li><strong>Python u pregledaču:</strong> Štiklirano (Uključeno)</li>
+        <li><strong>Server za izvršavanje i ocenjivanje:</strong> Automatski (Jobe kad je podešen, inače runner), Jobe ili CodeLab runner (bez Jobe-a). Interaktivno pokretanje, korak po korak i SQL uvek koriste runner.</li>
+        <li><strong>Adresa interaktivnog servera</strong> (<code>wss://runner.example.org</code>) i <strong>Tajna interaktivnog servera</strong> (ista kao <code>CODELAB_SECRET</code>).</li>
+        <li><strong>Jobe server:</strong> na primer <code>https://jobe.example.org</code>, ili prazno ako se koristi samo runner.</li>
+        <li><strong>Ključ za povezivanje</strong> (nije obavezan): umesto sopstvenih servera, hostovani CodeLab runner sa svim jezicima. To je plaćeni plan sa mesečnom kvotom pokretanja, koji daje autor CodeLab-a (ključ se traži na boban.blagojevic@tsp.edu.rs).</li>
+        <li><strong>Python u pregledaču:</strong> uključeno (Chrome ili Edge 137+; drugi pregledači izvršavaju Python na serveru).</li>
+        <li><strong>Jezici:</strong> jezici koje nastavnici mogu da izaberu; na serveru rade samo oni koji su na njemu instalirani.</li>
     </ul>
+    <p>Stranica podešavanja testira Jobe i runner, prikazuje njihove verzije i meri im brzinu.</p>
 
-    <h4 class="fw-bold mt-4 mb-2">5. VS Code teme i prilagođavanje izgleda (v1.5.0)</h4>
-    <p>Verzija v1.5.0 donosi izvorne VS Code teme i jednostavno prebacivanje tema za učenike:</p>
+    <h4 class="fw-bold mt-4 mb-2">5. Editor za čitaoce</h4>
     <ul>
-        <li><strong>Dostupne teme:</strong>
-            <ul>
-                <li><code>vs</code> (Visual Studio svetla): Pregledna svetla tema visoke čitljivosti.</li>
-                <li><code>vs-dark</code> (Visual Studio tamna): Standardna VS Code tamna tema za ugodan noćni rad.</li>
-                <li><code>hc-black</code> (Visoki kontrast): Pristupačna tema sa maksimalnim kontrastom boja.</li>
-                <li><code>auto</code> (Prati Moodle temu): Automatski se prilagođava temi sistema ili korisnika.</li>
-            </ul>
-        </li>
-        <li><strong>Izbor nastavnika:</strong> Prilikom unosa koda u TinyMCE editoru, nastavnik u padajućem meniju bira temu. Ona se čuva kao atribut <code>data-theme="..."</code>.</li>
-        <li><strong>Prekidač za učenike:</strong> Učenici mogu u bilo kom trenutku kliknuti na dugme za temu na traci CodeLab kartice kako bi trenutno promenili temu između svetle, tamne i visokog kontrasta, bez gubljenja koda ili stanja izvršavanja.</li>
-        <li><strong>Podrazumevana tema sajta:</strong> Administrator može podesiti podrazumevanu temu za ceo sajt na <em>Administracija sajta &gt; Dodaci &gt; Editori teksta &gt; TinyMCE editor &gt; CodeLab</em>.</li>
+        <li><strong>Teme:</strong> Visual Studio svetla, Visual Studio tamna, tamna visokog kontrasta ili Automatski (prati sajt i sistem). Administrator bira podrazumevanu, nastavnik može da izabere temu za svaki primer, a čitaoci je menjaju dugmetom za temu.</li>
+        <li><strong>Interfejs na 29 jezika</strong>, konzola prilagođena čitačima ekrana i tastaturi, uvećanje sa Ctrl i točkićem miša, ceo ekran i unos sa tastature telefona.</li>
+        <li><strong>Pomoć:</strong> pomoć pri kucanju i šabloni programa za svaki jezik, objašnjenja za početnike uz miša, objašnjenja 40 čestih grešaka kompajlera i opciona AI objašnjenja preko Moodle AI podsistema.</li>
     </ul>
 </div>
 HTML;
