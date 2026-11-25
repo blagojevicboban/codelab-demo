@@ -799,6 +799,10 @@ function demo_frontpage(int $en_id, int $sr_id): void {
         // Video tour (the media filter turns the link into a YouTube player).
         . '<div class="card border-0 shadow-sm rounded-4 mb-4 p-3 p-md-4">'
         . '<h4 class="fw-bold mb-1">Video tour: CodeLab for Moodle</h4>'
+        . '<p class="text-muted mb-3">CodeLab in 2 minutes: live coding, the visual debugger, safe mode and auto-grading.</p>'
+        . '<div class="demo-video mb-4" style="max-width: 960px;">'
+        . '<a href="https://youtu.be/BUF-3pVR1Rk#d=960x540">CodeLab for Moodle: live coding studio, visual debugger and auto-grading</a>'
+        . '</div>'
         . '<p class="text-muted mb-3">A full walkthrough: examples in the code editor, Run on Jobe or the runner, the debugger, flowcharts, the hosted runner and graded quiz questions.</p>'
         . '<div class="demo-video" style="max-width: 960px;">'
         . '<a href="https://youtu.be/2pegPwTl8eM#d=960x540">CodeLab for Moodle: full walkthrough (Jobe, hosted runner, flowchart and auto-grading)</a>'
